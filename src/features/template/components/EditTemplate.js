@@ -24,7 +24,7 @@ const EditTemplate = () => {
     dispatch(
       openModal({
         title: "Confirmation",
-        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+        bodyType: MODAL_BODY_TYPES.CONFIRMATION,  
         extraObject: {
           message: `Are you sure you want to delete this template?`,
           type: CONFIRMATION_MODAL_CLOSE_TYPES.TEMPLATE_DELETE,

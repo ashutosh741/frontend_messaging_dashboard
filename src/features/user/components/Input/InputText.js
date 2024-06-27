@@ -28,7 +28,7 @@ function InputText({
 
   return (
     <div className={`form-control w-full ${containerStyle}`}>
-      <label className="label text-black p-0">
+      <label className="label  p-0">
         <span className={"label gap-1 " + labelStyle}>
           {labelTitle}  <span className="text-red-500">*</span>
         </span>

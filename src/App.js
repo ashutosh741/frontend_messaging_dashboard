@@ -11,6 +11,7 @@ import checkAuth from "./app/auth";
 const Layout = lazy(() => import("./containers/Layout"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
+// ui need to improve
 
 const token = checkAuth();
 

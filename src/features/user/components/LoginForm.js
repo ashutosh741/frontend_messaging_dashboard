@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ErrorText from "./Typography/ErrorText";
 import InputText from "./Input/InputText";
+import { tempUser } from "../../../utils/constants";
 
 const LoginForm = () => {
   const INITIAL_LOGIN_OBJ = {
@@ -21,6 +22,8 @@ const LoginForm = () => {
       return;
     }
     localStorage.setItem("accessToken", "jkahdkfgasdfoasducaxn");
+    localStorage.setItem("user", JSON.stringify(tempUser));
+
     window.location.href = "/app/dashboard";
   };
 
