@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import ErrorText from "./Typography/ErrorText";
 import InputText from "./Input/InputText";
-import { tempUser } from "../../../utils/constants";
+import { API, tempUser } from "../../../utils/constants";
+import axios from 'axios'
 
 const LoginForm = () => {
   const INITIAL_LOGIN_OBJ = {
@@ -11,20 +12,38 @@ const LoginForm = () => {
   const [loginObj, setLoginObj] = useState(INITIAL_LOGIN_OBJ);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
     if (loginObj.username.trim() === "" || loginObj.password.trim() === "") {
       setErrorMessage("Please enter username and password");
       return;
-    } else if (loginObj.password.trim().length < 6) {
-      setErrorMessage("Password must be at least 6 characters long");
-      return;
     }
-    localStorage.setItem("accessToken", "jkahdkfgasdfoasducaxn");
-    localStorage.setItem("user", JSON.stringify(tempUser));
+    //  else if (loginObj.password.trim().length < 6) {
+    //   setErrorMessage("Password must be at least 6 characters long");
+    //   return;
+    // } 
+    else {
+      try {
+        // console.log("loginobj is", loginObj)
+        const response = await axios.post(`${API}/auth/login`, loginObj);
+        if (response.status === 200) {
+          const user = response.data.user;
+          // console.log("response is ", response);
+          localStorage.setItem("accessToken", response.data.accessToken);
+          localStorage.setItem("user", JSON.stringify(user));
 
-    window.location.href = "/app/dashboard";
+          window.location.href = "/app/dashboard";  
+        } else {
+          setErrorMessage(response.message);
+
+        }
+      } catch (error) {
+        setErrorMessage(error.response.data.message);
+        console.log("error is ", error.response.data.message)
+      }
+    }
+
   };
 
   const updateFormValue = ({ updateType, value }) => {

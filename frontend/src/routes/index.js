@@ -40,7 +40,7 @@ const routes = [
   },
 ];
 
-if (user?.isActive && user?.role?.includes("SUPERADMIN")) {
+if (user?.IsActive && user?.RoleName === "superadmin") {
   routes.push(
     {
       path: "/dashboard", // the url
@@ -67,7 +67,7 @@ if (user?.isActive && user?.role?.includes("SUPERADMIN")) {
       component: ViewUsers,
     },
   );
-} else if (user?.isActive && user?.role?.includes("ADMIN")) {
+} else if (user?.IsActive && user?.RoleName === "admin") {
   routes.push(
     {
       path: "/dashboard", // the url
@@ -87,7 +87,7 @@ if (user?.isActive && user?.role?.includes("SUPERADMIN")) {
     }
   );
 }
-if (user?.isActive && user?.role?.includes("USER")) {
+if (user?.IsActive && user?.RoleName === "user") {
   routes.push(
     {
       path: "/dashboard", // the url

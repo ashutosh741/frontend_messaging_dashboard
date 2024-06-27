@@ -6,7 +6,7 @@ export const smHyphenName = `spice-jet`;
 
 export const pdfCompanyName = `Spice Jet`;
 
- export const API = "https://spicejet.com";
+ export const API = "http://localhost:8080/api/v1";
 
 const IST_OFFSET = 5.5 * 60 * 60 * 1000;
 const istDate = new Date(Date.now() + IST_OFFSET);

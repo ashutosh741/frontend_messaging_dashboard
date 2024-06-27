@@ -21,9 +21,11 @@ if (userString !== null && userString !== undefined) {
   localStorage.clear();
 }
 
+console.log("routes index user is",user)
+
 const routes = [];
 
-if (user?.isActive && user?.role?.includes("SUPERADMIN")) {
+if (user?.IsActive && user?.RoleName === "superadmin") {
   routes.push(
     {
       path: "/app/dashboard",
@@ -56,7 +58,7 @@ if (user?.isActive && user?.role?.includes("SUPERADMIN")) {
 
   );
 }
-else if (user?.isActive && user?.role?.includes("ADMIN")) {
+else if (user?.IsActive && user?.RoleName === "admin") {
   routes.push(
     {
       path: "/app/dashboard",
@@ -74,7 +76,7 @@ else if (user?.isActive && user?.role?.includes("ADMIN")) {
     },
   );
 }
-else if (user?.isActive && user?.role?.includes("SUPERADMIN")) {
+else if (user?.IsActive && user?.RoleName === "user") {
   routes.push(
     {
       path: "/app/dashboard",
