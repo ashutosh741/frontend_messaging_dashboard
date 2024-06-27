@@ -5,23 +5,13 @@ import UserGroupIcon from "@heroicons/react/24/outline/UserGroupIcon";
 
 import ReportSummaryIcon from "../assets/svgs/ReportSummaryIcon";
 import DashboardIcon from "../assets/svgs/DashboardIcon";
+import { UserData } from "../utils/constants";
 const iconClasses = `h-6 w-6`;
 // const submenuIconClasses = `h-5 w-5`;
 
-let user;
-const userString = localStorage.getItem("user");
-if (userString !== null && userString !== undefined) {
-  try {
-    user = JSON.parse(userString);
-  } catch (error) {
-    console.error("Error parsing JSON:", error);
-    localStorage.clear();
-  }
-} else {
-  localStorage.clear();
-}
+let user = UserData
 
-console.log("routes index user is",user)
+// console.log("routes index user is",user)
 
 const routes = [];
 

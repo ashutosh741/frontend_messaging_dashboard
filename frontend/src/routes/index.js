@@ -1,5 +1,6 @@
 // All components mapping with path for internal routes
 import { lazy } from "react";
+import { UserData } from "../utils/constants.js";
 const Dashboard = lazy(() => import("../pages/protected/Dashboard"));
 const AddUser = lazy(() => import("../pages/protected/AddUser"));
 const ViewUsers = lazy(() => import("../pages/protected/ViewUsers"));
@@ -11,18 +12,7 @@ const EditTemplate = lazy(() => import("../pages/protected/EditTemplate.js"));
 
 const Page404 = lazy(() => import("../pages/protected/404"));
 
-let user;
-const userString = localStorage.getItem("user");
-if (userString !== null && userString !== undefined) {
-  try {
-    user = JSON.parse(userString);
-  } catch (error) {
-    console.error("Error parsing JSON:", error);
-    localStorage.clear();
-  }
-} else {
-  localStorage.clear();
-}
+let user = UserData
 
 const routes = [
   // {
