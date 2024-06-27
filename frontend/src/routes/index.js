@@ -12,7 +12,7 @@ const EditTemplate = lazy(() => import("../pages/protected/EditTemplate.js"));
 
 const Page404 = lazy(() => import("../pages/protected/404"));
 
-let user = UserData
+let user = UserData()
 
 const routes = [
   // {

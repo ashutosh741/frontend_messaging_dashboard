@@ -10,7 +10,7 @@ import TopSideButtons from "./components/TopSideButtons";
 import { handleError } from "../../../utils/errorUtils";
 
 const ProfileSettings = () => {
-  let user = UserData;
+  let user = UserData();
 
   const [profileData, setProfileData] = useState(user);
   const dispatch = useDispatch();

@@ -9,7 +9,7 @@ import {
 } from "../../../utils/constants.js";
 import { handleError } from "../../../utils/errorUtils.js";
 
-const user = UserData;
+const user = UserData();
 
 const TOKEN = localStorage.getItem("accessToken");
 

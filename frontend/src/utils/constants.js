@@ -6,7 +6,7 @@ export const smHyphenName = `spice-jet`;
 
 export const pdfCompanyName = `Spice Jet`;
 
- export const API = "http://localhost:8080/api/v1";
+export const API = "http://localhost:8080/api/v1";
 
 const IST_OFFSET = 5.5 * 60 * 60 * 1000;
 const istDate = new Date(Date.now() + IST_OFFSET);
@@ -103,8 +103,8 @@ export const todayUTC = istDate.toISOString().split("T")[0];
 // ]
 
 export const tempUser = {
-  isActive: "true",
-  role: "SUPERADMIN",
+  IsActive: "true",
+  RoleName: "superadmin",
   LastName: "Mishra",
   FirstName: "Ashutosh",
   Email: "aashutoshmishra296@gmail.com",
@@ -113,15 +113,19 @@ export const tempUser = {
 };
 
 // Users.js
-
 export const UserData = () => {
   const userString = localStorage.getItem("user");
   let user = null;
 
-  if (userString !== null && userString !== undefined) {
+  if (userString) {
     try {
       user = JSON.parse(userString);
-      delete user?.password;
+      if (user && typeof user === "object") {
+        delete user.password;
+        return user;
+      } else {
+        clearAndRedirect();
+      }
     } catch (error) {
       console.error("Error parsing JSON:", error);
       clearAndRedirect();
@@ -135,5 +139,5 @@ export const UserData = () => {
     window.location.href = "/";
   }
 
-  return user;
+  return null; // Return null if user data is not valid
 };
