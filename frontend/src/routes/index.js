@@ -4,6 +4,8 @@ import { UserData } from "../utils/constants.js";
 const Dashboard = lazy(() => import("../pages/protected/Dashboard"));
 const AddUser = lazy(() => import("../pages/protected/AddUser"));
 const ViewUsers = lazy(() => import("../pages/protected/ViewUsers"));
+const ProfileSettings = lazy(() => import("../pages/protected/ProfileSettings"));
+
 
 const CreateTemplate = lazy(() =>
   import("../pages/protected/CreateTemplate.js")
@@ -20,10 +22,10 @@ const routes = [
   //   component: Welcome,
   // },
 
-  // {
-  //   path: "/settings-profile",
-  //   component: ProfileSettings,
-  // },
+  {
+    path: "/settings-profile",
+    component: ProfileSettings,
+  },
   {
     path: "/404",
     component: Page404,

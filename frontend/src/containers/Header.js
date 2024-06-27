@@ -4,7 +4,6 @@ import DashboardBtn from "./components/DashboardBtn";
 import { themeChange } from "theme-change";
 import {
   Bars3Icon,
-  BellIcon,
   MoonIcon,
   SunIcon,
 } from "@heroicons/react/16/solid";

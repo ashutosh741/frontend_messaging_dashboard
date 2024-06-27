@@ -4,9 +4,7 @@ import { useDispatch } from "react-redux";
 import TitleCard from "../../../components/Cards/TitleCard";
 import { API, UserData } from "../../../utils/constants";
 import { showNotification } from "../../common/headerSlice";
-import { sliceLeadDeleted } from "../../leads/leadSlice";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import TopSideButtons from "./components/TopSideButtons";
 import { handleError } from "../../../utils/errorUtils";
 
 const ProfileSettings = () => {
@@ -59,7 +57,7 @@ const ProfileSettings = () => {
   };
 
   const handleUpdate = async () => {
-    if (!profileData.name || !profileData.email) {
+    if (!profileData.UserName || !profileData.FirstName || !profileData.LastName) {
       dispatch(
         showNotification({
           message: "Please fill all the fields!",
@@ -78,97 +76,91 @@ const ProfileSettings = () => {
       return;
     }
 
-    if (!isEmailValid(profileData.email)) {
-      dispatch(
-        showNotification({
-          message: "Email is not valid!",
-          status: 0,
-        })
-      );
-      return;
-    }
-    try {
-      const tokenResponse = localStorage.getItem("accessToken");
-      const tokenData = JSON.parse(tokenResponse);
-      const token = tokenData.token;
-      // Set the Authorization header with the token
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      console.log("user data before submitting", profileData);
-      const response = await axios.put(
-        `${API}/employee/${profileData._id}`,
-        profileData,
-        config
-      );
-      if (response.status === 200) {
-        localStorage.setItem("user", JSON.stringify(response.data));
-        dispatch(sliceLeadDeleted(true));
-        dispatch(
-          showNotification({
-            message: "Profile Updated Successfully!",
-            status: 1,
-          })
-        );
-      } else {
-        dispatch(
-          showNotification({
-            message: "Error in updating Profile!",
-            status: 0,
-          })
-        );
-      }
-    } catch (error) {
-      handleError(error);
-      dispatch(
-        showNotification({
-          message: "Error in updating Profile!",
-          status: 0,
-        })
-      );
-    }
+    // if (!isEmailValid(profileData.Email)) {
+    //   dispatch(
+    //     showNotification({
+    //       message: "Email is not valid!",
+    //       status: 0,
+    //     })
+    //   );
+    //   return;
+    // }
+    // try {
+    //   const tokenResponse = localStorage.getItem("accessToken");
+    //   const tokenData = JSON.parse(tokenResponse);
+    //   const token = tokenData.token;
+    //   // Set the Authorization header with the token
+    //   const config = {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //   };
+    //   console.log("user data before submitting", profileData);
+    //   const response = await axios.put(
+    //     `${API}/employee/${profileData._id}`,
+    //     profileData,
+    //     config
+    //   );
+    //   if (response.status === 200) {
+    //     localStorage.setItem("user", JSON.stringify(response.data));
+    //     dispatch(
+    //       showNotification({
+    //         message: "Profile Updated Successfully!",
+    //         status: 1,
+    //       })
+    //     );
+    //   } else {
+    //     dispatch(
+    //       showNotification({
+    //         message: "Error in updating Profile!",
+    //         status: 0,
+    //       })
+    //     );
+    //   }
+    // } catch (error) {
+    //   handleError(error);
+    //   dispatch(
+    //     showNotification({
+    //       message: "Error in updating Profile!",
+    //       status: 0,
+    //     })
+    //   );
+    // }
   };
   return (
     <>
       <TitleCard
         title="Profile Settings"
         topMargin="mt-2"
-        TopSideButtons={<TopSideButtons user={user} />}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="label">Name</label>
+            <label className="label">UserName</label>
             <input
               type="text"
-              name="name"
+              name="UserName"
               className="input input-bordered w-full"
-              value={profileData?.name}
+              value={profileData?.UserName}
               onChange={handleInputChange}
             />
           </div>
           <div>
-            <label className="label">Email</label>
+            <label className="label">FirstName</label>
             <input
               type="text"
-              name="email"
+              name="FirstName"
               className="input input-bordered w-full"
-              value={profileData?.email}
+              value={profileData?.FirstName}
               onChange={handleInputChange}
             />
           </div>
           <div>
-            <label className="label">Date of Birth</label>
+            <label className="label">LastName</label>
             <input
-              type="date"
-              name="dob"
+              type="text"
+              name="LastName"
               className="input input-bordered w-full"
-              value={
-                profileData?.dob
-                  ? new Date(profileData?.dob).toISOString().split("T")[0]
-                  : ""
-              }
+              value={profileData?.LastName}
               onChange={handleInputChange}
             />
           </div>
