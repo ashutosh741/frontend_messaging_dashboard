@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const templateRoute = require('./routes/usersRoutes');
+const sql = require('mssql/msnodesqlv8');
+const config = require('./dbconfig')
+
 
 // const config =require('./db');
 // const sql=require('mssql');
@@ -8,7 +11,7 @@ const app = express();
 const corsOptions = {
   origin: 'http://localhost:3000',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-  };
+};
 
 app.use(cors(corsOptions));
 
@@ -20,7 +23,17 @@ app.use((req, res, next) => {
 
 
 const PORT = 8080;
-  
+
+
+sql.connect(config)
+  .then(pool => {
+    console.log('Connected to SQL Server');
+  })
+  .catch(err => {
+    console.error('Error connecting to SQL Server:', err);
+  });
+
+
 app.use(express.json());
 
 app.use("/api/v1/user", templateRoute);
