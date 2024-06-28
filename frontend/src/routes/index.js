@@ -1,8 +1,11 @@
 // All components mapping with path for internal routes
 import { lazy } from "react";
+import { UserData } from "../utils/constants.js";
 const Dashboard = lazy(() => import("../pages/protected/Dashboard"));
 const AddUser = lazy(() => import("../pages/protected/AddUser"));
 const ViewUsers = lazy(() => import("../pages/protected/ViewUsers"));
+const ProfileSettings = lazy(() => import("../pages/protected/ProfileSettings"));
+
 
 const CreateTemplate = lazy(() =>
   import("../pages/protected/CreateTemplate.js")
@@ -11,18 +14,7 @@ const EditTemplate = lazy(() => import("../pages/protected/EditTemplate.js"));
 
 const Page404 = lazy(() => import("../pages/protected/404"));
 
-let user;
-const userString = localStorage.getItem("user");
-if (userString !== null && userString !== undefined) {
-  try {
-    user = JSON.parse(userString);
-  } catch (error) {
-    console.error("Error parsing JSON:", error);
-    localStorage.clear();
-  }
-} else {
-  localStorage.clear();
-}
+let user = UserData()
 
 const routes = [
   // {
@@ -30,10 +22,10 @@ const routes = [
   //   component: Welcome,
   // },
 
-  // {
-  //   path: "/settings-profile",
-  //   component: ProfileSettings,
-  // },
+  {
+    path: "/settings-profile",
+    component: ProfileSettings,
+  },
   {
     path: "/404",
     component: Page404,
