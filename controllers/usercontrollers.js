@@ -1,62 +1,64 @@
 const mysqlpool = require("../db");
 const jwt = require("jsonwebtoken");
 const secretKey = "secretkey";
-const { hashPassword, verifyPassword } = require('../utils/passwordCompare');
+const { hashPassword, verifyPassword } = require("../utils/passwordCompare");
+
 const getusers = async (req, res) => {
-    try {
-        const data = await mysqlpool.query("select * from messagingdashboard.users");
+  try {
+    const data = await mysqlpool.query(
+      "select * from messagingdashboard.users"
+    );
 
-        if (!data) {
-            console.log(data, "data");
+    if (!data) {
+      console.log(data, "data");
 
-            return res.status(404).send({
-                success: false,
-                message: "no record found"
-
-            })
-        }
-        res.status(200).send({
-            success: true,
-            message: "all ussers data",
-            data: data[0]
-        })
-    } catch (err) {
-        console.log(err, "while fetching all users");
-        res.status(500).send({
-            success: false,
-            message: "server err",
-            error: err
-        })
+      return res.status(404).send({
+        success: false,
+        message: "no record found",
+      });
     }
+    res.status(200).send({
+      success: true,
+      message: "all ussers data",
+      data: data[0],
+    });
+  } catch (err) {
+    console.log(err, "while fetching all users");
+    res.status(500).send({
+      success: false,
+      message: "server err",
+      error: err,
+    });
+  }
 };
 
-
-
-
 const AuthData = async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        console.log("Username and password:", username, password);
-        // decrypt the password and then check
+  try {
+    const { username, password } = req.body;
+    console.log("Username and password:", username, password);
+    // decrypt the password and then check
 
-        const [users] = await mysqlpool.query('SELECT * FROM messagingdashboard.users WHERE UserName = ?', [username]);
+    const [users] = await mysqlpool.query(
+      "SELECT * FROM messagingdashboard.users WHERE UserName = ?",
+      [username]
+    );
 
-        if (!users || users.length === 0) {
-            const response = createResponseObject(false, "User does not exist");
-            return res.status(404).json(response);
-        }
+    if (!users || users.length === 0) {
+      const response = createResponseObject(false, "User does not exist");
+      return res.status(404).json(response);
+    }
 
-        const user = users[0]; // Assuming username is unique, take the first result
+    const user = users[0]; // Assuming username is unique, take the first result
 
-        // Step 2: Verify password
+    // Step 2: Verify password
 
-        if (verifyPassword(password, user.Password)) {
-            const response = createResponseObject(false, "Invalid password");
-            return res.status(401).json(response);
-        }
+    if (verifyPassword(password, user.Password)) {
+      const response = createResponseObject(false, "Invalid password");
+      return res.status(401).json(response);
+    }
 
-        // Step 3: Fetch user details including role information using JOIN
-        const query = `
+    // Step 3: Fetch user details including role information using JOIN
+    const query = `
             SELECT u.FirstName, u.LastName, u.IsActive, u.CreatedDate, r.RoleName, r.Description
             FROM messagingdashboard.users u
             INNER JOIN messagingdashboard.userrolemapping urm ON u.UserId = urm.UserId
@@ -64,92 +66,95 @@ const AuthData = async (req, res) => {
             WHERE u.UserId = ?;
         `;
 
-        const [userDetails] = await mysqlpool.query(query, [user.UserId]);
+    const [userDetails] = await mysqlpool.query(query, [user.UserId]);
 
-        // Step 4: Generate JWT token
-        const token = jwt.sign({
-            UserId: user.UserId,
-            UserName: user.UserName,
-            RoleName: userDetails[0].RoleName
-        }, process.env.SECRET_KEY, { expiresIn: '30min' });
+    // Step 4: Generate JWT token
+    const token = jwt.sign(
+      {
+        UserId: user.UserId,
+        UserName: user.UserName,
+        RoleName: userDetails[0].RoleName,
+      },
+      process.env.SECRET_KEY,
+      { expiresIn: "30min" }
+    );
 
-        // Step 5: Return JSON response with authentication details
-        const response = createResponseObject(true, "Authentication successful", {
-            accessToken: token,
-            user: {
-                UserId: user.UserId,
-                UserName: user.UserName,
-                FirstName: userDetails[0].FirstName,
-                LastName: userDetails[0].LastName,
-                IsActive: userDetails[0].IsActive,
-                RoleName: userDetails[0].RoleName,
-                Description: userDetails[0].Description,
-                CreatedDate: userDetails[0].CreatedDate
-                // Add other user details as needed
-            }
-        });
+    // Step 5: Return JSON response with authentication details
+    const response = createResponseObject(true, "Authentication successful", {
+      accessToken: token,
+      user: {
+        UserId: user.UserId,
+        UserName: user.UserName,
+        FirstName: userDetails[0].FirstName,
+        LastName: userDetails[0].LastName,
+        IsActive: userDetails[0].IsActive,
+        RoleName: userDetails[0].RoleName,
+        Description: userDetails[0].Description,
+        CreatedDate: userDetails[0].CreatedDate,
+        // Add other user details as needed
+      },
+    });
 
-        res.status(200).json(response);
-
-    } catch (err) {
-        console.error("Error in authentication:", err);
-        const response = createResponseObject(false, "Server error", err.message);
-        res.status(500).json(response);
-    }
+    res.status(200).json(response);
+  } catch (err) {
+    console.error("Error in authentication:", err);
+    const response = createResponseObject(false, "Server error", err.message);
+    res.status(500).json(response);
+  }
 };
 
-
 const CreateUser = async (req, res) => {
+  const { UserName, FirstName, LastName, Password } = req.body;
 
-    const { UserName, FirstName, LastName, Password } = req.body;
-
-    try {
-        const sql = `
+  try {
+    const sql = `
         INSERT INTO Users (UserName, FirstName, LastName, Password, isActive, CreatedDate)
         VALUES (?, ?, ?, ?, true, CURDATE())
       `;
-        const values = [UserName, FirstName, LastName, Password];
+    const values = [UserName, FirstName, LastName, Password];
 
-        const [result] = await mysqlpool.query(sql, values);
-        console.log(`Inserted user with ID ${result.insertId}`);
+    const [result] = await mysqlpool.query(sql, values);
+    console.log(`Inserted user with ID ${result.insertId}`);
 
-        res.status(200).json({ message: 'User inserted successfully', userId: result.insertId });
-    } catch (error) {
-        console.error('Error inserting user:', error);
-        res.status(500).json({ error: 'Database error' });
-    }
-}
-
+    res
+      .status(200)
+      .json({ message: "User inserted successfully", userId: result.insertId });
+  } catch (error) {
+    console.error("Error inserting user:", error);
+    res.status(500).json({ error: "Database error" });
+  }
+};
 
 const canUpdateUserData = async (req, res, next) => {
-    const { UserName } = req.body;
-    // Check if user is SuperAdmin
-    console.log(UserName, ".............");
-    const [users] = await mysqlpool.query('SELECT * FROM messagingdashboard.users WHERE UserName = ?', [UserName]);
+  const { UserName } = req.body;
+  // Check if user is SuperAdmin
+  console.log(UserName, ".............");
+  const [users] = await mysqlpool.query(
+    "SELECT * FROM messagingdashboard.users WHERE UserName = ?",
+    [UserName]
+  );
 
-    if (!users || users.length === 0) {
-        return res.status(404).json({
-            success: false,
-            message: "User does not exist"
-        });
-    }
+  if (!users || users.length === 0) {
+    return res.status(404).json({
+      success: false,
+      message: "User does not exist",
+    });
+  }
 
-    const user = users[0];
-    if (user.userRole === 'superadmin') {
-        return res.send({
-            userRole: user.userRole
-        })
-    } else {
-        return res.status(200).json({
-            success: true,
-            message: "user forund"
-        })
+  const user = users[0];
+  if (user.userRole === "superadmin") {
+    return res.send({
+      userRole: user.userRole,
+    });
+  } else {
+    return res.status(200).json({
+      success: true,
+      message: "user forund",
+    });
 
-        // Allow SuperAdmin to proceed
-        // return next();
-    }
-
-
-}
+    // Allow SuperAdmin to proceed
+    // return next();
+  }
+};
 
 module.exports = { getusers, AuthData, CreateUser, canUpdateUserData };

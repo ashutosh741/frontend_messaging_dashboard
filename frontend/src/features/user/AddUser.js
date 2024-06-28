@@ -8,6 +8,7 @@ import { API } from "../../utils/constants";
 import TitleCard from "../../components/Cards/TitleCard";
 import InputText from "./components/Input/InputText";
 import { handleError } from "../../utils/errorUtils";
+import bcrypt from 'bcryptjs';
 
 function AddUser() {
   const INITIAL_USER_OBJ = {
@@ -79,44 +80,47 @@ function AddUser() {
       );
       return;
     } else {
-        console.log("uesr data is",userObj)
+      console.log("uesr data is", userObj);
       userObj.FirstName = userObj.FirstName.trim();
       userObj.LastName = userObj.LastName.trim();
       userObj.Email = userObj.Email.trim();
       userObj.RoleType = userObj.RoleType.trim();
       userObj.Password = userObj.Password.trim();
+      // Hash the password
+      const salt = bcrypt.genSaltSync(10);
+      const hashedPassword = bcrypt.hashSync(userObj.Password, salt);
+      userObj.Password = hashedPassword;
+      //   try {
+      //     const tokenResponse = localStorage.getItem("accessToken");
+      //     const tokenData = JSON.parse(tokenResponse);
+      //     const token = tokenData.token;
+      //     const config = {
+      //       headers: {
+      //         Authorization: `Bearer ${token}`,
+      //       },
+      //     };
 
-    //   try {
-    //     const tokenResponse = localStorage.getItem("accessToken");
-    //     const tokenData = JSON.parse(tokenResponse);
-    //     const token = tokenData.token;
-    //     const config = {
-    //       headers: {
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //     };
+      //     const response = await axios.post(`${API}/addUser`, userObj, config);
 
-    //     const response = await axios.post(`${API}/addUser`, userObj, config);
+      //     if (response.status === 201) {
+      //       setUserObj(INITIAL_USER_OBJ);
 
-    //     if (response.status === 201) {
-    //       setUserObj(INITIAL_USER_OBJ);
-
-    //       dispatch(
-    //         showNotification({
-    //           message: "User Created Successfully!",
-    //           status: 1,
-    //         })
-    //       );
-    //     }
-    //   } catch (error) {
-    //     handleError(error);
-    //     dispatch(
-    //       showNotification({
-    //         message: `${error.response.data.message}`,
-    //         status: 0,
-    //       })
-    //     );
-    //   }
+      //       dispatch(
+      //         showNotification({
+      //           message: "User Created Successfully!",
+      //           status: 1,
+      //         })
+      //       );
+      //     }
+      //   } catch (error) {
+      //     handleError(error);
+      //     dispatch(
+      //       showNotification({
+      //         message: `${error.response.data.message}`,
+      //         status: 0,
+      //       })
+      //     );
+      //   }
     }
   };
 
