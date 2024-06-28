@@ -1,7 +1,7 @@
 const mysqlpool = require("../db");
 const jwt = require("jsonwebtoken");
 const secretKey = "secretkey";
-
+const { hashPassword, verifyPassword } = require('../utils/passwordCompare');
 const getusers = async (req, res) => {
     try {
         const data = await mysqlpool.query("select * from messagingdashboard.users");
@@ -32,6 +32,7 @@ const getusers = async (req, res) => {
 
 
 
+
 const AuthData = async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -41,26 +42,22 @@ const AuthData = async (req, res) => {
         const [users] = await mysqlpool.query('SELECT * FROM messagingdashboard.users WHERE UserName = ?', [username]);
 
         if (!users || users.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "User does not exist"
-            });
+            const response = createResponseObject(false, "User does not exist");
+            return res.status(404).json(response);
         }
 
         const user = users[0]; // Assuming username is unique, take the first result
 
         // Step 2: Verify password
 
-        if (password !== user.Password) {
-            return res.status(401).json({
-                success: false,
-                message: "Invalid password"
-            });
+        if (verifyPassword(password, user.Password)) {
+            const response = createResponseObject(false, "Invalid password");
+            return res.status(401).json(response);
         }
 
         // Step 3: Fetch user details including role information using JOIN
         const query = `
-            SELECT u.FirstName, u.LastName, u.IsActive, u.CreatedDate, r.RoleName,r.Discription
+            SELECT u.FirstName, u.LastName, u.IsActive, u.CreatedDate, r.RoleName, r.Description
             FROM messagingdashboard.users u
             INNER JOIN messagingdashboard.userrolemapping urm ON u.UserId = urm.UserId
             INNER JOIN messagingdashboard.role r ON urm.RoleId = r.RoleId
@@ -74,12 +71,10 @@ const AuthData = async (req, res) => {
             UserId: user.UserId,
             UserName: user.UserName,
             RoleName: userDetails[0].RoleName
-        }, SECRET_KEY, { expiresIn: '30min' });
+        }, process.env.SECRET_KEY, { expiresIn: '30min' });
 
         // Step 5: Return JSON response with authentication details
-        res.status(200).json({
-            success: true,
-            message: "Authentication successful",
+        const response = createResponseObject(true, "Authentication successful", {
             accessToken: token,
             user: {
                 UserId: user.UserId,
@@ -94,13 +89,12 @@ const AuthData = async (req, res) => {
             }
         });
 
+        res.status(200).json(response);
+
     } catch (err) {
         console.error("Error in authentication:", err);
-        res.status(500).json({
-            success: false,
-            message: "Server error",
-            error: err.message
-        });
+        const response = createResponseObject(false, "Server error", err.message);
+        res.status(500).json(response);
     }
 };
 
