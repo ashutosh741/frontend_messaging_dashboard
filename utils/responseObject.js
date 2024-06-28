@@ -1,6 +1,6 @@
-function createResponseObject(success, message, data = null) {
+function createResponseObject(isError, message, data = null) {
     const responseObject = {
-        success: success,
+        isError: isError,
         message: message
     };
 

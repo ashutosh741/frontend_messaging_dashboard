@@ -10,25 +10,18 @@ const getusers = async (req, res) => {
     );
 
     if (!data) {
-      console.log(data, "data");
-
-      return res.status(404).send({
-        success: false,
-        message: "no record found",
-      });
+      const response = createResponseObject(true, "No record found");
+      return res.status(404).json(response);
     }
-    res.status(200).send({
-      success: true,
-      message: "all ussers data",
-      data: data[0],
+    const response = createResponseObject(false, "All ussers data", {
+      data: data[0]
     });
+    return res.status(200).json(response);
   } catch (err) {
-    console.log(err, "while fetching all users");
-    res.status(500).send({
-      success: false,
-      message: "server err",
-      error: err,
+    const response = createResponseObject(true, "Internal Server Error", {
+      err,
     });
+    return res.status(500).json(response);
   }
 };
 
@@ -53,7 +46,7 @@ const AuthData = async (req, res) => {
     // Step 2: Verify password
 
     if (verifyPassword(password, user.Password)) {
-      const response = createResponseObject(false, "Invalid password");
+      const response = createResponseObject(true, "Invalid password");
       return res.status(401).json(response);
     }
 
@@ -80,7 +73,7 @@ const AuthData = async (req, res) => {
     );
 
     // Step 5: Return JSON response with authentication details
-    const response = createResponseObject(true, "Authentication successful", {
+    const response = createResponseObject(false, "Authentication successful", {
       accessToken: token,
       user: {
         UserId: user.UserId,
@@ -97,8 +90,7 @@ const AuthData = async (req, res) => {
 
     res.status(200).json(response);
   } catch (err) {
-    console.error("Error in authentication:", err);
-    const response = createResponseObject(false, "Server error", err.message);
+    const response = createResponseObject(true, "Server error", err.message);
     res.status(500).json(response);
   }
 };
@@ -115,13 +107,14 @@ const CreateUser = async (req, res) => {
 
     const [result] = await mysqlpool.query(sql, values);
     console.log(`Inserted user with ID ${result.insertId}`);
+    const response = createResponseObject(false, "User inserted successfully", {
+      userId: result.insertId,
+    });
 
-    res
-      .status(200)
-      .json({ message: "User inserted successfully", userId: result.insertId });
+    res.status(200).json(response);
   } catch (error) {
-    console.error("Error inserting user:", error);
-    res.status(500).json({ error: "Database error" });
+    const response = createResponseObject(true, "Internal Server Error");
+    res.status(500).json(response);
   }
 };
 
