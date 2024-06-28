@@ -4,6 +4,20 @@ const secretKey = "secretkey";
 const { hashPassword, verifyPassword } = require("../utils/passwordCompare");
 const crypto = require('crypto');
 
+function createResponseObject(isError,message,data=null){
+    const responseObject={
+        isError:isError,
+        message:message
+    };
+
+    if(data != null){
+        responseObject.data= data;
+    }
+    return responseObject;
+}
+
+// const createResponseObject =require("../utils/responseObject");
+const { isErrored } = require("stream");
 const getusers = async (req, res) => {
   try {
     const data = await mysqlpool.query(
