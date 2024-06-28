@@ -6,6 +6,7 @@ import { API, UserData } from "../../../utils/constants";
 import { showNotification } from "../../common/headerSlice";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { handleError } from "../../../utils/errorUtils";
+import bcrypt from 'bcryptjs';
 
 const ProfileSettings = () => {
   let user = UserData();
@@ -75,6 +76,10 @@ const ProfileSettings = () => {
       );
       return;
     }
+
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(profileData.Password, salt);
+    profileData.Password = hashedPassword;
 
     // if (!isEmailValid(profileData.Email)) {
     //   dispatch(
