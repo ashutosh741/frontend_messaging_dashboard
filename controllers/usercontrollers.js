@@ -1,6 +1,6 @@
 const mysqlpool = require("../db");
-const jwt =require("jsonwebtoken");
-const secretKey="secretkey";
+const jwt = require("jsonwebtoken");
+const secretKey = "secretkey";
 
 const getusers = async (req, res) => {
     try {
@@ -36,6 +36,7 @@ const AuthData = async (req, res) => {
     try {
         const { username, password } = req.body;
         console.log("Username and password:", username, password);
+        // decrypt the password and then check
 
         const [users] = await mysqlpool.query('SELECT * FROM messagingdashboard.users WHERE UserName = ?', [username]);
 
@@ -72,8 +73,8 @@ const AuthData = async (req, res) => {
         const token = jwt.sign({
             UserId: user.UserId,
             UserName: user.UserName,
-            RoleName: userDetails[0].RoleName 
-        }, 'your_jwt_secret', { expiresIn: '1h' });
+            RoleName: userDetails[0].RoleName
+        }, SECRET_KEY, { expiresIn: '30min' });
 
         // Step 5: Return JSON response with authentication details
         res.status(200).json({
@@ -104,8 +105,57 @@ const AuthData = async (req, res) => {
 };
 
 
+const CreateUser = async (req, res) => {
+
+    const { UserName, FirstName, LastName, Password } = req.body;
+
+    try {
+        const sql = `
+        INSERT INTO Users (UserName, FirstName, LastName, Password, isActive, CreatedDate)
+        VALUES (?, ?, ?, ?, true, CURDATE())
+      `;
+        const values = [UserName, FirstName, LastName, Password];
+
+        const [result] = await mysqlpool.query(sql, values);
+        console.log(`Inserted user with ID ${result.insertId}`);
+
+        res.status(200).json({ message: 'User inserted successfully', userId: result.insertId });
+    } catch (error) {
+        console.error('Error inserting user:', error);
+        res.status(500).json({ error: 'Database error' });
+    }
+}
 
 
+const canUpdateUserData = async (req, res, next) => {
+    const { UserName } = req.body;
+    // Check if user is SuperAdmin
+    console.log(UserName, ".............");
+    const [users] = await mysqlpool.query('SELECT * FROM messagingdashboard.users WHERE UserName = ?', [UserName]);
+
+    if (!users || users.length === 0) {
+        return res.status(404).json({
+            success: false,
+            message: "User does not exist"
+        });
+    }
+
+    const user = users[0];
+    if (user.userRole === 'superadmin') {
+        return res.send({
+            userRole: user.userRole
+        })
+    } else {
+        return res.status(200).json({
+            success: true,
+            message: "user forund"
+        })
+
+        // Allow SuperAdmin to proceed
+        // return next();
+    }
 
 
-module.exports = { getusers , AuthData};
+}
+
+module.exports = { getusers, AuthData, CreateUser, canUpdateUserData };

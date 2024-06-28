@@ -25,6 +25,8 @@ app.use(express.json());
 
 app.use("/api/v1/user", templateRoute);
 app.use("/api/v1/auth", templateRoute);
+app.use("/api/v1/CreateUser", templateRoute);
+app.use("/api/v1/Updateuser", templateRoute);
 
 // ####### SSMS connection ########
 
