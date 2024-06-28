@@ -8,7 +8,6 @@ import { API } from "../../utils/constants";
 import TitleCard from "../../components/Cards/TitleCard";
 import InputText from "./components/Input/InputText";
 import { handleError } from "../../utils/errorUtils";
-import bcrypt from 'bcryptjs';
 
 function AddUser() {
   const INITIAL_USER_OBJ = {
@@ -86,10 +85,6 @@ function AddUser() {
       userObj.Email = userObj.Email.trim();
       userObj.RoleType = userObj.RoleType.trim();
       userObj.Password = userObj.Password.trim();
-      // Hash the password
-      const salt = bcrypt.genSaltSync(10);
-      const hashedPassword = bcrypt.hashSync(userObj.Password, salt);
-      userObj.Password = hashedPassword;
       //   try {
       //     const tokenResponse = localStorage.getItem("accessToken");
       //     const tokenData = JSON.parse(tokenResponse);
