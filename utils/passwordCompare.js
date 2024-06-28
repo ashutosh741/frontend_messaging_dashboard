@@ -1,23 +1,23 @@
-const bcrypt = require('bcrypt');
-const saltRounds = 10; // Number of salt rounds to generate
+const crypto = require('crypto');
 
 // Function to hash a password
 async function hashPassword(password) {
     try {
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-        return hashedPassword;
+        const salt = crypto.randomBytes(16).toString('hex');
+        const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+        return { salt, hash };
     } catch (error) {
-        throw new Error('Hashing failed', error);
+        throw new Error('Hashing failed: ' + error.message);
     }
 }
 
 // Function to verify a password
-async function verifyPassword(password, hashedPassword) {
+async function verifyPassword(password, hashedPassword, salt) {
     try {
-        const match = await bcrypt.compare(password, hashedPassword);
-        return match;
+        const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+        return hashedPassword === hash;
     } catch (error) {
-        throw new Error('Password verification failed', error);
+        throw new Error('Password verification failed: ' + error.message);
     }
 }
 
