@@ -6,8 +6,8 @@ import axios from 'axios'
 
 const LoginForm = () => {
   const INITIAL_LOGIN_OBJ = {
-    username: "",
-    password: "",
+    UserName: "",
+    Password: "",
   };
   const [loginObj, setLoginObj] = useState(INITIAL_LOGIN_OBJ);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -15,8 +15,8 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-    if (loginObj.username.trim() === "" || loginObj.password.trim() === "") {
-      setErrorMessage("Please enter username and password");
+    if (loginObj.UserName.trim() === "" || loginObj.Password.trim() === "") {
+      setErrorMessage("Please enter UserName and password");
       return;
     }
     //  else if (loginObj.password.trim().length < 6) {
@@ -27,6 +27,7 @@ const LoginForm = () => {
       try {
         // console.log("loginobj is", loginObj)
         const response = await axios.post(`${API}/auth/login`, loginObj);
+        console.log("resopinse is",response)
         if (response.status === 200) {
           const user = response.data.user;
           // console.log("response is ", response);
@@ -35,19 +36,19 @@ const LoginForm = () => {
 
           window.location.href = "/app/dashboard";  
         } else {
-          // setErrorMessage(response.message);
-          localStorage.setItem("user", JSON.stringify(tempUser));
-          localStorage.setItem("accessToken", "sdjfvklcm");
+          setErrorMessage(response.message);
+          // localStorage.setItem("user", JSON.stringify(tempUser));
+          // localStorage.setItem("accessToken", "sdjfvklcm");
 
-          window.location.href = "/app/dashboard";  
+          // window.location.href = "/app/dashboard";  
 
         }
       } catch (error) {
-        // setErrorMessage(error.response.data.message);
-        // console.log("error is ", error.response.data.message)
-        localStorage.setItem("user", JSON.stringify(tempUser));
-        localStorage.setItem("accessToken", "sdjfvklcm");
-        window.location.href = "/app/dashboard"; 
+        setErrorMessage(error.response.data.message);
+        console.log("error is ", error.response.data.message)
+        // localStorage.setItem("user", JSON.stringify(tempUser));
+        // localStorage.setItem("accessToken", "sdjfvklcm");
+        // window.location.href = "/app/dashboard"; 
       }
     }
 
@@ -63,8 +64,8 @@ const LoginForm = () => {
         <div className="mb-4">
           <InputText
             type="text"
-            defaultValue={loginObj.username}
-            updateType="username"
+            defaultValue={loginObj.UserName}
+            updateType="UserName"
             containerStyle="mt-4"
             labelTitle="User Name"
             updateFormValue={updateFormValue}
@@ -72,8 +73,8 @@ const LoginForm = () => {
           />
           <InputText
             type={"password"}
-            updateType="password"
-            defaultValue={loginObj.password}
+            updateType="Password"
+            defaultValue={loginObj.Password}
             containerStyle="mt-4"
             labelTitle="Password"
             updateFormValue={updateFormValue}
