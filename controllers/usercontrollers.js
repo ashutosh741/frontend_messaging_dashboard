@@ -1,34 +1,51 @@
 const mysqlpool = require("../db");
-const mysql = require('mysql2/promise');
+const mysql = require("mysql2/promise");
 const jwt = require("jsonwebtoken");
 const { hashPassword, verifyPassword } = require("../utils/passwordCompare");
-const crypto = require('crypto');
+const crypto = require("crypto");
 
 function createResponseObject(isError, message, data = null) {
   const responseObject = {
     isError: isError,
-    message: message
+    message: message,
   };
 
   if (data != null) {
     responseObject.data = data;
   }
-  return responseObject; uirytuijgh
+  return responseObject;
+  uirytuijgh;
 }
 
-// const createResponseObject =require("../utils/responseObject");
-const { isErrored } = require("stream");
 const getusers = async (req, res) => {
-  try {
-    const data = await mysqlpool.query(
-      "select * from messagingdashboard.users"
-    );
+  // Ensure the user has the correct role
+  if (req.user.rolename !== "superadmin" && req.user.rolename !== "admin") {
+    const response = createResponseObject(true, "Access denied");
+    return res.status(403).json(response);
+  }
 
-    if (!data) {
+  try {
+    let data;
+    const username = req.params.username;
+
+    // Check if a username parameter is provided
+    if (username) {
+      // Fetch data for a single user
+      data = await mysqlpool.query(
+        "SELECT * FROM messagingdashboard.users WHERE username = ?",
+        [username]
+      );
+    } else {
+      // Fetch data for all users
+      data = await mysqlpool.query("SELECT * FROM messagingdashboard.users");
+    }
+
+    if (!data.length) {
       const response = createResponseObject(true, "No record found");
       return res.status(404).json(response);
     }
-    const response = createResponseObject(false, "All ussers data", {
+
+    const response = createResponseObject(false, "User data retrieved", {
       data: data[0],
     });
     return res.status(200).json(response);
@@ -39,6 +56,8 @@ const getusers = async (req, res) => {
     return res.status(500).json(response);
   }
 };
+
+module.exports = getusers;
 
 const AuthData = async (req, res) => {
   try {
@@ -61,12 +80,15 @@ const AuthData = async (req, res) => {
     const { Password: storedPassword } = user;
 
     if (!user.IsActive) {
-      const response = createResponseObject(false, "User is not active, contact admin");
+      const response = createResponseObject(
+        false,
+        "User is not active, contact admin"
+      );
       return res.status(404).json(response);
     }
 
     // Verify the password
-    if (!await verifyPassword(Password, storedPassword)) {
+    if (!(await verifyPassword(Password, storedPassword))) {
       const response = createResponseObject(false, "Invalid password");
       return res.status(401).json(response);
     }
@@ -81,7 +103,7 @@ const AuthData = async (req, res) => {
       `;
 
     const [userDetails] = await mysqlpool.query(query, [user.UserId]);
-    console.log("userdetails we are creatring is", userDetails)
+    console.log("userdetails we are creatring is", userDetails);
     // Generate JWT token
     const token = jwt.sign(
       {
@@ -116,10 +138,8 @@ const AuthData = async (req, res) => {
   }
 };
 
-
 const CreateUser = async (req, res) => {
   if (req.user.RoleName === "superadmin") {
-
     const { UserName, FirstName, LastName, RoleName, Password } = req.body;
 
     try {
@@ -161,7 +181,10 @@ const CreateUser = async (req, res) => {
     `;
       const valuesInsertUser = [UserName, FirstName, LastName, hashedPassword];
 
-      const [userResult] = await mysqlpool.query(sqlInsertUser, valuesInsertUser);
+      const [userResult] = await mysqlpool.query(
+        sqlInsertUser,
+        valuesInsertUser
+      );
       const userId = userResult.insertId;
       console.log(`Inserted user with ID ${userId}`);
 
@@ -186,13 +209,22 @@ const CreateUser = async (req, res) => {
     `;
       const valuesInsertUserRoleMapping = [userId, roleId];
 
-      await mysqlpool.query(sqlInsertUserRoleMapping, valuesInsertUserRoleMapping);
-      console.log(`Inserted user role mapping for user ID ${userId} and role ID ${roleId}`);
+      await mysqlpool.query(
+        sqlInsertUserRoleMapping,
+        valuesInsertUserRoleMapping
+      );
+      console.log(
+        `Inserted user role mapping for user ID ${userId} and role ID ${roleId}`
+      );
 
       // Prepare success response
-      const response = createResponseObject(false, "User inserted successfully", {
-        userId,
-      });
+      const response = createResponseObject(
+        false,
+        "User inserted successfully",
+        {
+          userId,
+        }
+      );
 
       res.status(200).json(response);
     } catch (error) {
@@ -202,7 +234,10 @@ const CreateUser = async (req, res) => {
       res.status(500).json(response);
     }
   } else {
-    const response = createResponseObject(true, "User is not allowed to perform this action");
+    const response = createResponseObject(
+      true,
+      "User is not allowed to perform this action"
+    );
     res.status(403).json(response);
   }
 };
@@ -211,11 +246,17 @@ const canUpdateUserData = async (req, res) => {
   let connection;
   try {
     const { UserName } = req.params;
-    const { FirstName, LastName, IsActive, RoleName, UserName: newUserName } = req.body;
+    const {
+      FirstName,
+      LastName,
+      IsActive,
+      RoleName,
+      UserName: newUserName,
+    } = req.body;
 
     // Fetch the user to check if they exist
     const [users] = await mysqlpool.query(
-      'SELECT * FROM messagingdashboard.users WHERE UserName = ?',
+      "SELECT * FROM messagingdashboard.users WHERE UserName = ?",
       [UserName]
     );
 
@@ -223,18 +264,18 @@ const canUpdateUserData = async (req, res) => {
     if (!users || users.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'User does not exist',
+        message: "User does not exist",
       });
     }
 
     // Check if user is trying to update their own username or IsActive
-    if (req.user.UserName === UserName && req.user.RoleName !== 'superadmin') {
-      let errorMessage = '';
+    if (req.user.UserName === UserName && req.user.RoleName !== "superadmin") {
+      let errorMessage = "";
       if (newUserName !== undefined) {
-        errorMessage = 'You cannot update username';
+        errorMessage = "You cannot update username";
       }
       if (IsActive !== undefined) {
-        errorMessage = 'You cannot update IsActive status';
+        errorMessage = "You cannot update IsActive status";
       }
       return res.status(403).json({
         success: false,
@@ -243,10 +284,10 @@ const canUpdateUserData = async (req, res) => {
     }
 
     // Check if user is allowed to update (superadmin or different user)
-    if (req.user.UserName !== UserName && req.user.RoleName !== 'superadmin') {
+    if (req.user.UserName !== UserName && req.user.RoleName !== "superadmin") {
       return res.status(403).json({
         success: false,
-        message: 'User is not allowed to update',
+        message: "User is not allowed to update",
       });
     }
 
@@ -255,27 +296,27 @@ const canUpdateUserData = async (req, res) => {
     await connection.beginTransaction();
 
     // Construct the update query dynamically based on permissions
-    let updateSql = 'UPDATE messagingdashboard.users SET ';
+    let updateSql = "UPDATE messagingdashboard.users SET ";
     const updateValues = [];
 
     if (FirstName !== undefined) {
-      updateSql += 'FirstName = ?, ';
+      updateSql += "FirstName = ?, ";
       updateValues.push(FirstName);
     }
     if (LastName !== undefined) {
-      updateSql += 'LastName = ?, ';
+      updateSql += "LastName = ?, ";
       updateValues.push(LastName);
     }
-    if (IsActive !== undefined && req.user.RoleName === 'superadmin') {
-      updateSql += 'IsActive = ?, ';
+    if (IsActive !== undefined && req.user.RoleName === "superadmin") {
+      updateSql += "IsActive = ?, ";
       updateValues.push(IsActive);
     }
-    if (RoleName !== undefined && req.user.RoleName === 'superadmin') {
-      updateSql += 'RoleName = ?, ';
+    if (RoleName !== undefined && req.user.RoleName === "superadmin") {
+      updateSql += "RoleName = ?, ";
       updateValues.push(RoleName);
     }
-    if (newUserName !== undefined && req.user.RoleName === 'superadmin') {
-      updateSql += 'UserName = ?, ';
+    if (newUserName !== undefined && req.user.RoleName === "superadmin") {
+      updateSql += "UserName = ?, ";
       updateValues.push(newUserName);
     }
 
@@ -283,7 +324,7 @@ const canUpdateUserData = async (req, res) => {
     updateSql = updateSql.slice(0, -2);
 
     // Add WHERE clause
-    updateSql += ' WHERE UserName = ?';
+    updateSql += " WHERE UserName = ?";
     updateValues.push(UserName);
 
     // Execute update query
@@ -294,15 +335,15 @@ const canUpdateUserData = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'User updated successfully',
+      message: "User updated successfully",
     });
   } catch (error) {
     if (connection) {
       // Rollback transaction on error
       await connection.rollback();
     }
-    console.error('Error updating user:', error);
-    const response = createResponseObject(true, 'Internal Server Error');
+    console.error("Error updating user:", error);
+    const response = createResponseObject(true, "Internal Server Error");
     res.status(500).json(response);
   } finally {
     if (connection) {
@@ -310,7 +351,6 @@ const canUpdateUserData = async (req, res) => {
     }
   }
 };
-
 
 // const canUpdateUserData = async (req, res) => {
 //   let connection;
@@ -399,31 +439,29 @@ const canUpdateUserData = async (req, res) => {
 //   }
 // };
 
-
-
-
-
 const deleteData = async (req, res) => {
   const { UserName } = req.body;
 
   try {
     const sql = `DELETE FROM users WHERE LOWER(UserName) = LOWER(?)`;
     const result = await mysqlpool.query(sql, UserName);
-    console.log("resutl is ", result[0])
+    console.log("resutl is ", result[0]);
 
     if (result[0].affectedRows === 0) {
-      res.status(404).json({ error: 'User not found' });
+      res.status(404).json({ error: "User not found" });
     } else {
-      res.status(200).json({ message: 'User deleted successfully' });
+      res.status(200).json({ message: "User deleted successfully" });
     }
   } catch (err) {
-    console.error('Error executing MySQL query:', err);
-    res.status(500).json({ error: 'Error deleting user' });
+    console.error("Error executing MySQL query:", err);
+    res.status(500).json({ error: "Error deleting user" });
   }
 };
 
-
-
-
-
-module.exports = { getusers, AuthData, CreateUser, canUpdateUserData, deleteData };
+module.exports = {
+  getusers,
+  AuthData,
+  CreateUser,
+  canUpdateUserData,
+  deleteData,
+};
