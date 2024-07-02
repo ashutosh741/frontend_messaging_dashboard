@@ -1,14 +1,16 @@
 const express = require('express');
 const   router = express.Router();
 
-    const { getusers, AuthData,CreateUser,canUpdateUserData } = require('../controllers/usercontrollers');
+    const { getusers, AuthData,CreateUser,canUpdateUserData ,deleteData} = require('../controllers/usercontrollers');
+const Verify = require('../verifyToken');
 
 
 router.get('/list2',getusers)
 // router.get('/login',AuthData)
 router.post('/login',AuthData)
 
-router.post('/newUser',CreateUser)
-router.patch('/Update',canUpdateUserData)
+router.post('/newUser', Verify,CreateUser);
+router.patch('/Update/:UserName',Verify,canUpdateUserData);
+router.delete('/Delete',Verify,deleteData);
 
 module.exports = router;
