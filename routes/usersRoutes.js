@@ -5,7 +5,9 @@ const   router = express.Router();
 const Verify = require('../verifyToken');
 
 
-router.get('/users',getusers)
+router.get('/users',Verify,getusers)
+router.get('/users/:UserName',Verify,getusers)
+
 // router.get('/login',AuthData)
 router.post('/login',AuthData)
 

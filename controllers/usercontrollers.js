@@ -19,20 +19,20 @@ function createResponseObject(isError, message, data = null) {
 
 const getusers = async (req, res) => {
   // Ensure the user has the correct role
-  if (req.user.rolename !== "superadmin" && req.user.rolename !== "admin") {
+  if (req.user.RoleName !== "superadmin" && req.user.RoleName !== "admin") {
     const response = createResponseObject(true, "Access denied");
     return res.status(403).json(response);
   }
 
   try {
     let data;
-    const username = req.params.username;
+    const username = req.params.UserName;
 
     // Check if a username parameter is provided
     if (username) {
       // Fetch data for a single user
       data = await mysqlpool.query(
-        "SELECT * FROM messagingdashboard.users WHERE username = ?",
+        "SELECT * FROM messagingdashboard.users WHERE UserName = ?",
         [username]
       );
     } else {
@@ -57,7 +57,6 @@ const getusers = async (req, res) => {
   }
 };
 
-module.exports = getusers;
 
 const AuthData = async (req, res) => {
   try {
