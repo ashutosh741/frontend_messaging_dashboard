@@ -27,14 +27,14 @@ const LoginForm = () => {
       try {
         // console.log("loginobj is", loginObj)
         const response = await axios.post(`${API}/auth/login`, loginObj);
-        console.log("resopinse is",response)
+        console.log("response is", response)
         if (response.status === 200) {
           const user = response.data.user;
           // console.log("response is ", response);
           localStorage.setItem("accessToken", response.data.accessToken);
           localStorage.setItem("user", JSON.stringify(user));
 
-          window.location.href = "/app/dashboard";  
+          window.location.href = "/app/dashboard";
         } else {
           setErrorMessage(response.message);
           // localStorage.setItem("user", JSON.stringify(tempUser));

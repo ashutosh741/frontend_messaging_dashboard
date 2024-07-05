@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const templateRoute = require('./routes/usersRoutes');
+const templateRoute1 = require('./routes/templateRoutes');
 
 // const config =require('./db');
 // const sql=require('mssql');
@@ -28,6 +29,10 @@ app.use("/api/v1/auth", templateRoute);
 app.use("/api/v1/CreateUser", templateRoute);
 app.use("/api/v1/Updateuser", templateRoute);
 app.use("/api/v1/Deleteuser", templateRoute);
+
+// ######   apis for sms template ########
+app.use("/api/v1/createtemplate", templateRoute1);
+
 
 // ####### SSMS connection ########
 
