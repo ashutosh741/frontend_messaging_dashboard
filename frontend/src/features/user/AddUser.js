@@ -105,10 +105,10 @@ function AddUser() {
 
         if (response.status === 201) {
           setUserObj(INITIAL_USER_OBJ);
-
+          console.log("repoise is",response)
           dispatch(
             showNotification({
-              message: response.data.message,
+              message: response.message,
               status: 1,
             })
           );
