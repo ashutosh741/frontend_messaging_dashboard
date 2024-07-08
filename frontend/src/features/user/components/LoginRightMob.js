@@ -6,7 +6,7 @@ const LoginRightMob = () => {
   return (
     <div className="w-full p-8 h-screen flex flex-col justify-center">
       <div className="w-full ml-auto flex justify-center">
-        <img src="/login/login_logo.svg" alt="Logo" className="w-3/4"/>
+        <img src="/login/login_logo.svg" alt="Logo" className="w-[7rem]"/>
       </div>
       <div className="flex justify-center flex-col">
         <div className="justify-center mt-12">
