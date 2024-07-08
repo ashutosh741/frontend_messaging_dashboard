@@ -12,6 +12,7 @@ import {
 } from "../../../utils/globalConstantUtil";
 import { API } from "../../../utils/constants";
 import axios from "axios";
+import { handleError } from "../../../utils/errorUtils";
 
 const EditTemplate = () => {
   // const { templates } = useSelector((state) => state.template);

@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { API } from "../../utils/constants";
 import axios from "axios";
 import { handleError } from "../../utils/errorUtils";
+import { showNotification } from "../common/headerSlice";
 
 const Template = () => {
   const dispatch = useDispatch();
