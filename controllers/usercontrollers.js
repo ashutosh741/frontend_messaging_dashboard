@@ -267,34 +267,38 @@ const canUpdateUserData = async (req, res) => {
       });
     }
 
-    // Check if user is trying to update their own username or IsActive
-    if (req.user.UserName === UserName && req.user.RoleName !== "superadmin") {
-      let errorMessage = "";
-      if (newUserName !== undefined) {
-        errorMessage = "You cannot update username";
+    // Check permissions for updating RoleName
+    if (RoleName !== undefined && req.user.RoleName === "superadmin") {
+      // Fetch roleId corresponding to RoleName from role table
+      const [roles] = await mysqlpool.query(
+        "SELECT RoleId FROM messagingdashboard.role WHERE RoleName = ?",
+        [RoleName]
+      );
+
+      if (!roles || roles.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Role does not exist",
+        });
       }
-      if (IsActive !== undefined) {
-        errorMessage = "You cannot update IsActive status";
-      }
-      return res.status(403).json({
-        success: false,
-        message: errorMessage,
-      });
+
+      const roleId = roles[0].RoleId;
+
+      // Begin transaction
+      connection = await mysqlpool.getConnection();
+      await connection.beginTransaction();
+
+      // Update roleId in userrolemapping table
+      await connection.query(
+        "UPDATE messagingdashboard.userrolemapping SET RoleId = ? WHERE UserId = ?",
+        [roleId, users[0].UserId]
+      );
+
+      // Commit transaction
+      await connection.commit();
     }
 
-    // Check if user is allowed to update (superadmin or different user)
-    if (req.user.UserName !== UserName && req.user.RoleName !== "superadmin") {
-      return res.status(403).json({
-        success: false,
-        message: "User is not allowed to update",
-      });
-    }
-
-    // Begin transaction
-    connection = await mysqlpool.getConnection();
-    await connection.beginTransaction();
-
-    // Construct the update query dynamically based on permissions
+    // Construct the update query for users table
     let updateSql = "UPDATE messagingdashboard.users SET ";
     const updateValues = [];
 
@@ -310,10 +314,6 @@ const canUpdateUserData = async (req, res) => {
       updateSql += "IsActive = ?, ";
       updateValues.push(IsActive);
     }
-    if (RoleName !== undefined && req.user.RoleName === "superadmin") {
-      updateSql += "RoleName = ?, ";
-      updateValues.push(RoleName);
-    }
     if (newUserName !== undefined && req.user.RoleName === "superadmin") {
       updateSql += "UserName = ?, ";
       updateValues.push(newUserName);
@@ -326,11 +326,8 @@ const canUpdateUserData = async (req, res) => {
     updateSql += " WHERE UserName = ?";
     updateValues.push(UserName);
 
-    // Execute update query
+    // Execute update query for users table
     await connection.query(updateSql, updateValues);
-
-    // Commit transaction
-    await connection.commit();
 
     return res.status(200).json({
       success: true,
@@ -338,7 +335,6 @@ const canUpdateUserData = async (req, res) => {
     });
   } catch (error) {
     if (connection) {
-      // Rollback transaction on error
       await connection.rollback();
     }
     console.error("Error updating user:", error);
@@ -346,10 +342,11 @@ const canUpdateUserData = async (req, res) => {
     res.status(500).json(response);
   } finally {
     if (connection) {
-      connection.release(); // Release connection back to pool
+      connection.release();
     }
   }
 };
+
 
 const deleteData = async (req, res) => {
   const { UserName } = req.body;
