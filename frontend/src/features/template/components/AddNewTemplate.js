@@ -34,9 +34,9 @@ const AddNewTemplate = () => {
       RoleName: user?.RoleName,
     };
     try {
-      const tokenResponse = localStorage.getItem("accessToken");
-      const tokenData = JSON.parse(tokenResponse);
-      const token = tokenData.token;
+      const token = localStorage.getItem("accessToken");
+      // const tokenData = JSON.parse(tokenResponse);
+      // const token = tokenData.token;
       // Set the Authorization header with the token
       const config = {
         headers: {
@@ -65,17 +65,17 @@ const AddNewTemplate = () => {
       }
     } catch (error) {
       console.log(error);
-      // if (error.status === 409) {
-      //   localStorage.clear();
-      //   window.location.href = "/login";
-      // } else {
-      //   dispatch(
-      //     showNotification({
-      //       message: error.message,
-      //       status: 0,
-      //     })
-      //   );
-      // }
+      if (error.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({
+            message: error.response.data.message,
+            status: 0,
+          })
+        );
+      }
     }
 
     // dispatch(addNewTemplate({ newTemplateObj }));
