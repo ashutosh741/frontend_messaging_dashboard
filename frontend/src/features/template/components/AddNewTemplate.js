@@ -19,8 +19,8 @@ const AddNewTemplate = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [templateObj, setTemplateObj] = useState(INITIAL_TEMPLATE_OBJ);
 
-  const saveNewTemplate = async () => {
-    // e.preventDefault();
+  const saveNewTemplate = async (e) => {
+    e.preventDefault();
 
     if (templateObj.TemplateId.trim() === "")
       return setErrorMessage("Template Id is required!");
@@ -64,7 +64,7 @@ const AddNewTemplate = () => {
         );
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       // if (error.status === 409) {
       //   localStorage.clear();
       //   window.location.href = "/login";
@@ -88,44 +88,47 @@ const AddNewTemplate = () => {
 
   return (
     <div className="w-full">
-      <div className="flex flex-col p-6 rounded-xl gap-4">
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold ">
-            Template ID<span className="text-red-500  text-xl my-4">*</span>
-          </label>
-          <input
-            type="text"
-            className="input  input-bordered w-full max-w-xs placeholder:text-sm bg-inherit"
-            placeholder="Enter Template Id"
-            onChange={(e) =>
-              updateFormValue({ type: "TemplateId", value: e.target.value })
-            }
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold">
-            Content<span className="text-red-500   text-xl my-4">*</span>
-          </label>
-          <textarea
-            rows="4"
-            cols="100"
-            onChange={(e) =>
-              updateFormValue({ type: "Content", value: e.target.value })
-            }
-            maxLength={50}
-            className="textarea  input-bordered w-full bg-inherit "
-            placeholder="Enter SMS Content"
-          />
-        </div>
-        <ErrorText styleClass="mt-16">{errorMessage}</ErrorText>
+      <form onSubmit={(e) => saveNewTemplate(e)}>
+        <div className="flex flex-col p-6 rounded-xl gap-4">
+          <div className="flex flex-col gap-2">
+            <label className="font-semibold ">
+              Template ID<span className="text-red-500  text-xl my-4">*</span>
+            </label>
+            <input
+              type="text"
+              className="input  input-bordered w-full max-w-xs placeholder:text-sm bg-inherit"
+              placeholder="Enter Template Id"
+              onChange={(e) =>
+                updateFormValue({ type: "TemplateId", value: e.target.value })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="font-semibold">
+              Content<span className="text-red-500   text-xl my-4">*</span>
+            </label>
+            <textarea
+              rows="4"
+              cols="100"
+              onChange={(e) =>
+                updateFormValue({ type: "Content", value: e.target.value })
+              }
+              maxLength={50}
+              className="textarea  input-bordered w-full bg-inherit "
+              placeholder="Enter SMS Content"
+            />
+          </div>
+          <ErrorText styleClass="mt-16">{errorMessage}</ErrorText>
 
-        <button
-          className="left-0 bg-[#D2292E] rounded-xl text-white h-[2.5rem] w-[9rem]"
-          onClick={saveNewTemplate}
-        >
-          Submit
-        </button>
-      </div>
+          <button
+            type="submit"
+            className="left-0 bg-[#D2292E] rounded-xl text-white h-[2.5rem] w-[9rem]"
+            // onClick={saveNewTemplate}
+          >
+            Submit
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
