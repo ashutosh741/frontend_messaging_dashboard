@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { TrashIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -8,11 +8,40 @@ import {
 import { openModal } from "../common/modalSlice";
 import TitleCard from "../../components/Cards/TitleCard";
 import { useNavigate } from "react-router-dom";
+import { API } from "../../utils/constants";
 
 const Template = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { templates } = useSelector((state) => state.template);
+  const [templates, setTemplates] = useState();
+  // const { templates } = useSelector((state) => state.template);
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+
+      const baseURL = `${API}/FetchAllTemplate/ViewTemplates`;
+      try {
+        const response = await axios.get(baseURL);
+        if (response.status === 200) {
+          setTemplates(response.data.templates);
+        } else {
+          console.log("access token incorrect");
+        }
+      } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
+        console.error("error", error);
+      }
+      // dispatch(sliceLeadDeleted(false));
+    };
+
+    fetchData();
+  }, []);
+
+
 
   const deleteCurrentTemplate = (index) => {
     dispatch(
@@ -63,9 +92,9 @@ const Template = () => {
                 return (
                   <tr key={k}>
                     <td>{k + 1}</td>
-                    <td>{l.templateId}</td>
-                    <td>{l.content}</td>
-                    <td>{l.status}</td>
+                    <td>{l.TemplateId}</td>
+                    <td>{l.Content}</td>
+                    <td>{l.Status}</td>
                     <td>
                       <button
                         className="btn btn-square btn-ghost"

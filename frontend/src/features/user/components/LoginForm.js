@@ -29,9 +29,9 @@ const LoginForm = () => {
         const response = await axios.post(`${API}/auth/login`, loginObj);
         console.log("response is", response)
         if (response.status === 200) {
-          const user = response.data.user;
+          const user = response.data.data.user;
           // console.log("response is ", response);
-          localStorage.setItem("accessToken", response.data.accessToken);
+          localStorage.setItem("accessToken", response.data.data.accessToken);
           localStorage.setItem("user", JSON.stringify(user));
 
           window.location.href = "/app/dashboard";
