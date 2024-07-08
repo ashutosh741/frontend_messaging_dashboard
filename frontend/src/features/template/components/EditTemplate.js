@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { showNotification } from "../../common/headerSlice";
 import { updateTemplate } from "../templateSlice";
 
@@ -12,24 +12,54 @@ import {
 } from "../../../utils/globalConstantUtil";
 
 const EditTemplate = () => {
-  const { templates } = useSelector((state) => state.template);
+  // const { templates } = useSelector((state) => state.template);
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
-  const [templateObj, setTemplateObj] = useState(templates[id]);
+  const [templateObj, setTemplateObj] = useState();
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem("accessToken");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const baseURL = `${API}/FetchAllTemplate/ViewTemplates/${id}`;
+      try {
+        const response = await axios.get(baseURL,config);
+        if (response.status === 200) {
+          setTemplateObj(response.data.data.template);
+        } else {
+          console.log("access token incorrect");
+        }
+      } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
+        console.error("error", error);
+      }
+      // dispatch(sliceLeadDeleted(false));
+    };
+
+    fetchData();
+  }, []);
 
   //   console.log("tmeplate ibj", templateObj);
   const deleteCurrentTemplate = (index) => {
     dispatch(
       openModal({
         title: "Confirmation",
-        bodyType: MODAL_BODY_TYPES.CONFIRMATION,  
+        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
         extraObject: {
           message: `Are you sure you want to delete this template?`,
           type: CONFIRMATION_MODAL_CLOSE_TYPES.TEMPLATE_DELETE,
           index,
-          navigateTo : "/app/dashboard"
+          navigateTo: "/app/dashboard",
         },
       })
     );

@@ -20,10 +20,15 @@ const Template = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-
+      const token = localStorage.getItem("accessToken");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
       const baseURL = `${API}/FetchAllTemplate/ViewTemplates`;
       try {
-        const response = await axios.get(baseURL);
+        const response = await axios.get(baseURL,config);
         if (response.status === 200) {
           setTemplates(response.data.templates);
         } else {
