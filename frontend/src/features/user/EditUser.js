@@ -173,7 +173,7 @@ function EditUser() {
 
   return (
     <>
-      <TitleCard title="Fill User Details" topMargin="mt-2">
+      <TitleCard title="Update User Details" topMargin="mt-2">
         <form onSubmit={(e) => submitForm(e)}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <InputText
@@ -240,7 +240,7 @@ function EditUser() {
           </div>
           <div className="mt-4">
             <button className="btn btn-primary float-right" type="submit">
-              Create
+              Update
             </button>
           </div>
         </form>
