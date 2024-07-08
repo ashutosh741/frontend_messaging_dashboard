@@ -26,60 +26,59 @@ const AddNewTemplate = () => {
       return setErrorMessage("Template Id is required!");
     else if (templateObj.Content.trim() === "")
       return setErrorMessage("Content is required!");
-    else {
-      let newTemplateObj = {
-        TemplateId: templateObj.TemplateId.trim(),
-        Content: templateObj.Content.trim(),
-        CreatedBy: user?.FirstName,
-        Status: 0,
-        RoleName: user?.RoleName,
+    let newTemplateObj = {
+      TemplateId: templateObj.TemplateId.trim(),
+      Content: templateObj.Content.trim(),
+      CreatedBy: user?.FirstName,
+      Status: 0,
+      RoleName: user?.RoleName,
+    };
+    try {
+      const tokenResponse = localStorage.getItem("accessToken");
+      const tokenData = JSON.parse(tokenResponse);
+      const token = tokenData.token;
+      // Set the Authorization header with the token
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       };
-      try {
-        const tokenResponse = localStorage.getItem("accessToken");
-        const tokenData = JSON.parse(tokenResponse);
-        const token = tokenData.token;
-        // Set the Authorization header with the token
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
-        const response = await axios.post(
-          `${API}/createTemplate/newTemplate`,
-          newTemplateObj,
-          config
+      const response = await axios.post(
+        `${API}/createTemplate/newTemplate`,
+        newTemplateObj,
+        config
+      );
+      if (response?.status === 200) {
+        // localStorage.setItem("user", JSON.stringify(response.data));
+        // dispatch(sliceLeadDeleted(true));
+        dispatch(
+          showNotification({ message: response.data.message, status: 1 })
         );
-        if (response?.status === 200) {
-          // localStorage.setItem("user", JSON.stringify(response.data));
-          // dispatch(sliceLeadDeleted(true));
-          dispatch(
-            showNotification({ message: response.data.message, status: 1 })
-          );
-          navigate("/app/dashboard");
-        } else {
-          dispatch(
-            showNotification({
-              message: response.data.message,
-              status: 0,
-            })
-          );
-        }
-      } catch (error) {
-        if (error.response.status === 409) {
-          localStorage.clear();
-          window.location.href = "/login";
-        } else {
-          dispatch(
-            showNotification({
-              message: error.data.message,
-              status: 0,
-            })
-          );
-        }
+        navigate("/app/dashboard");
+      } else {
+        dispatch(
+          showNotification({
+            message: response.data.message,
+            status: 0,
+          })
+        );
       }
-
-      // dispatch(addNewTemplate({ newTemplateObj }));
+    } catch (error) {
+      console.log(error)
+      // if (error.status === 409) {
+      //   localStorage.clear();
+      //   window.location.href = "/login";
+      // } else {
+      //   dispatch(
+      //     showNotification({
+      //       message: error.message,
+      //       status: 0,
+      //     })
+      //   );
+      // }
     }
+
+    // dispatch(addNewTemplate({ newTemplateObj }));
   };
 
   const updateFormValue = ({ type, value }) => {
@@ -122,7 +121,7 @@ const AddNewTemplate = () => {
 
         <button
           className="left-0 bg-[#D2292E] rounded-xl text-white h-[2.5rem] w-[9rem]"
-          onClick={() => saveNewTemplate()}
+          onClick={saveNewTemplate}
         >
           Submit
         </button>
