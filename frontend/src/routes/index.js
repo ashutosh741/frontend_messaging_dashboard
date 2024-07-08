@@ -2,6 +2,8 @@
 import { lazy } from "react";
 import { UserData } from "../utils/constants.js";
 const Dashboard = lazy(() => import("../pages/protected/Dashboard"));
+const EditUser = lazy(() => import("../pages/protected/EditUser"));
+
 const AddUser = lazy(() => import("../pages/protected/AddUser"));
 const ViewUsers = lazy(() => import("../pages/protected/ViewUsers"));
 const ProfileSettings = lazy(() => import("../pages/protected/ProfileSettings"));
@@ -57,6 +59,10 @@ if (user?.IsActive && user?.RoleName === "superadmin") {
     {
       path: "/viewUsers",
       component: ViewUsers,
+    },
+    {
+      path: "/editUser/:id",
+      component: EditUser,
     },
   );
 } else if (user?.IsActive && user?.RoleName === "admin") {

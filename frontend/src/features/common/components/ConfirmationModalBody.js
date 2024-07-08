@@ -57,7 +57,53 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
           );
         }
       }
+    }else     if (type === CONFIRMATION_MODAL_CLOSE_TYPES.USER_DELETE) {
+      // positive response, call api or dispatch redux function
+      try {
+        const token = localStorage.getItem("accessToken");
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = await axios.delete(
+          `${API}/DeleteUser/Delete/${index}`,
+          config
+        );
+        if (response?.status === 200) {
+          // localStorage.setItem("user", JSON.stringify(response.data));
+          // dispatch(sliceLeadDeleted(true));
+          dispatch(
+            showNotification({ message: response.data.message, status: 1 })
+          );
+          if (navigateTo) {
+            navigate(navigateTo);
+          }
+          // navigate("/app/dashboard");
+        } else {
+          dispatch(
+            showNotification({
+              message: response.data.message,
+              status: 0,
+            })
+          );
+        }
+      } catch (error) {
+        console.log(error);
+        if (error.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        } else {
+          dispatch(
+            showNotification({
+              message: error.response.data.message,
+              status: 0,
+            })
+          );
+        }
+      }
     }
+
     closeModal();
   };
 
