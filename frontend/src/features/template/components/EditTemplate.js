@@ -69,13 +69,13 @@ const EditTemplate = () => {
   const handleUpdateTemplate = async() => {
     if (templateObj?.TemplateId.trim() === "")
       return setErrorMessage("Id is required!");
-    else if (templateObj?.content.trim() === "")
+    else if (templateObj?.Content.trim() === "")
       return setErrorMessage("Content is required!");
     try {
       let updatedTemplateObj = {
         TemplateId: templateObj.TemplateId.trim(),
-        Content: templateObj.content.trim(),
-        status: 1,
+        Content: templateObj.Content.trim(),
+        Status: 1,
       };
       const token = localStorage.getItem("accessToken");
       const config = {
@@ -160,7 +160,7 @@ const EditTemplate = () => {
             cols="100"
             value={templateObj?.Content}
             onChange={(e) =>
-              updateFormValue({ type: "content", value: e.target.value })
+              updateFormValue({ type: "Content", value: e.target.value })
             }
             maxLength={50}
             className="textarea  input-bordered w-full bg-inherit "

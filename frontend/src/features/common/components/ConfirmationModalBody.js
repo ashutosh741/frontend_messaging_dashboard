@@ -21,7 +21,7 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
             Authorization: `Bearer ${token}`,
           },
         };
-        const response = await axios.patch(
+        const response = await axios.delete(
           `${API}/DeleteTemplate/Delete/${index}`,
           config
         );

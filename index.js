@@ -32,8 +32,10 @@ app.use("/api/v1/Deleteuser", templateRoute);
 
 // ######   apis for sms template ########
 app.use("/api/v1/createtemplate", templateRoute1);
-app.use("/api/v1/Updatetemplate", templateRoute1);
+app.use("/api/v1/UpdateTemplate", templateRoute1);
 app.use("/api/v1/FetchAllTemplate", templateRoute1);
+app.use("/api/v1/DeleteTemplate", templateRoute1);
+
 
 
 // ####### SSMS connection ########

@@ -110,7 +110,7 @@ const Template = () => {
                       </button>
                       <button
                         className="btn btn-square btn-ghost"
-                        onClick={() => deleteCurrentTemplate(k)}
+                        onClick={() => deleteCurrentTemplate(l.TemplateId)}
                       >
                         <TrashIcon className="w-5" />
                       </button>
