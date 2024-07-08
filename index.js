@@ -28,7 +28,7 @@ app.use("/api/v1/user", templateRoute);
 app.use("/api/v1/auth", templateRoute);
 app.use("/api/v1/CreateUser", templateRoute);
 app.use("/api/v1/Updateuser", templateRoute);
-app.use("/api/v1/Deleteuser", templateRoute);
+app.use("/api/v1/DeleteUser", templateRoute);
 
 // ######   apis for sms template ########
 app.use("/api/v1/createtemplate", templateRoute1);

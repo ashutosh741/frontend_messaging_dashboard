@@ -28,26 +28,35 @@ const getusers = async (req, res) => {
     let data;
     const username = req.params.UserName;
 
-    // Check if a username parameter is provided
+    // SQL query to fetch specific columns including RoleName and Description
+    let sql = `
+      SELECT u.CreatedDate, r.Description, u.FirstName, u.IsActive,
+             u.LastName, r.RoleName, u.UserId, u.UserName
+      FROM messagingdashboard.users u
+      LEFT JOIN messagingdashboard.userrolemapping urm ON u.UserId = urm.UserId
+      LEFT JOIN messagingdashboard.role r ON urm.RoleId = r.RoleId
+    `;
+
+    // If a username parameter is provided, filter by username
+    const params = [];
     if (username) {
-      // Fetch data for a single user
-      data = await mysqlpool.query(
-        "SELECT * FROM messagingdashboard.users WHERE UserName = ?",
-        [username]
-      );
-    } else {
-      // Fetch data for all users
-      data = await mysqlpool.query("SELECT * FROM messagingdashboard.users");
+      sql += `WHERE u.UserName = ?`;
+      params.push(username);
     }
+
+    data = await mysqlpool.query(sql, params);
 
     if (!data.length) {
       const response = createResponseObject(true, "No record found");
       return res.status(404).json(response);
     }
 
-    const response = createResponseObject(false, "User data retrieved", {
-      data: data[0],
-    });
+    // If fetching data for a single user, return the first record
+    const responseData = {
+      data: username ? data[0] : data[0],
+    };
+
+    const response = createResponseObject(false, "User data retrieved", responseData);
     return res.status(200).json(response);
   } catch (err) {
     const response = createResponseObject(true, "Internal Server Error", {
@@ -56,6 +65,8 @@ const getusers = async (req, res) => {
     return res.status(500).json(response);
   }
 };
+
+
 
 
 const AuthData = async (req, res) => {
@@ -351,21 +362,50 @@ const canUpdateUserData = async (req, res) => {
 const deleteData = async (req, res) => {
   const { UserName } = req.body;
 
+  let connection;
   try {
-    const sql = `DELETE FROM users WHERE LOWER(UserName) = LOWER(?)`;
-    const result = await mysqlpool.query(sql, UserName);
-    console.log("resutl is ", result[0]);
+    // Begin transaction
+    connection = await mysqlpool.getConnection();
+    await connection.beginTransaction();
 
-    if (result[0].affectedRows === 0) {
-      res.status(404).json({ error: "User not found" });
-    } else {
-      res.status(200).json({ message: "User deleted successfully" });
+    // Select UserId from users table
+    const selectUserIdSql = `SELECT UserId FROM users WHERE LOWER(UserName) = LOWER(?)`;
+    const [userRows] = await connection.query(selectUserIdSql, [UserName]);
+
+    // Check if user exists
+    if (userRows.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ error: "User not found" });
     }
+
+    const userId = userRows[0].UserId;
+
+    // Delete from userrolemapping table
+    const deleteUserRoleMappingSql = `DELETE FROM userrolemapping WHERE UserId = ?`;
+    await connection.query(deleteUserRoleMappingSql, [userId]);
+
+    // Delete from users table
+    const deleteUsersSql = `DELETE FROM users WHERE UserId = ?`;
+    await connection.query(deleteUsersSql, [userId]);
+
+    // Commit transaction
+    await connection.commit();
+
+    return res.status(200).json({ message: "User and associated role mappings deleted successfully" });
   } catch (err) {
+    if (connection) {
+      await connection.rollback();
+    }
     console.error("Error executing MySQL query:", err);
-    res.status(500).json({ error: "Error deleting user" });
+    return res.status(500).json({ error: "Error deleting user and associated role mappings" });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 };
+
+
 
 module.exports = {
   getusers,

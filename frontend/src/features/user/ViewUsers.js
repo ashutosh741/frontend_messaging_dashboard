@@ -29,7 +29,8 @@ const ViewUsers = () => {
       try {
         const response = await axios.get(baseURL,config);
         if (response.status === 200) {
-          setUsers(response.data.data);
+          console.log("repsonse is", response)
+          setUsers(response.data.data.data);
         } else {
           console.log("access token incorrect");
         }
@@ -88,7 +89,7 @@ const ViewUsers = () => {
                 <th>Full Name</th>
                 <th>Email</th>
                 <th>RoleName</th>
-                <th>Description</th>
+                {/* <th>Description</th> */}
 
                 <th>Created Date</th>
                 <th>IsActive</th>
@@ -101,10 +102,10 @@ const ViewUsers = () => {
                 return (
                   <tr key={k}>
                     <td>{k + 1}</td>
-                    <td>{l.FirstName} + {l.LastName}</td>
+                    <td>{l.FirstName}  {l.LastName}</td>
                     <td>{l.UserName}</td>
                     <td>{l.RoleName}</td>
-                    <td>{l.Description}</td>
+                    {/* <td>{l.Description}</td> */}
                     <td>{l.CreatedDate}</td>
                     <td>{l.IsActive}</td>
                     <td>
