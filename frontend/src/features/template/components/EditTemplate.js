@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { showNotification } from "../../common/headerSlice";
 import { updateTemplate } from "../templateSlice";
@@ -10,6 +10,8 @@ import {
   CONFIRMATION_MODAL_CLOSE_TYPES,
   MODAL_BODY_TYPES,
 } from "../../../utils/globalConstantUtil";
+import { API } from "../../../utils/constants";
+import axios from "axios";
 
 const EditTemplate = () => {
   // const { templates } = useSelector((state) => state.template);
@@ -100,7 +102,7 @@ const EditTemplate = () => {
               type="text"
               className="input  input-bordered w-full max-w-xs placeholder:text-sm bg-inherit"
               placeholder="Enter Template Id"
-              value={templateObj?.templateId}
+              value={templateObj?.TemplateId}
               onChange={(e) =>
                 updateFormValue({ type: "templateId", value: e.target.value })
               }
@@ -122,7 +124,7 @@ const EditTemplate = () => {
           <textarea
             rows="4"
             cols="100"
-            value={templateObj?.content}
+            value={templateObj?.Content}
             onChange={(e) =>
               updateFormValue({ type: "content", value: e.target.value })
             }
