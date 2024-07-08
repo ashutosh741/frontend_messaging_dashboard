@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import axios from "axios";
@@ -8,7 +8,7 @@ import { API } from "../../utils/constants";
 import TitleCard from "../../components/Cards/TitleCard";
 import InputText from "./components/Input/InputText";
 import { handleError } from "../../utils/errorUtils";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function EditUser() {
   const { UserName } = useParams();
@@ -39,7 +39,8 @@ function EditUser() {
       try {
         const response = await axios.get(baseURL, config);
         if (response.status === 200) {
-          setTemplateObj(response.data.data);
+          console.log("response is",response)
+          setUserObj(response.data.data.data[0]);
         } else {
           console.log("access token incorrect");
         }
@@ -108,7 +109,13 @@ function EditUser() {
       userObj.LastName = userObj.LastName.trim();
       userObj.UserName = userObj.UserName.trim();
       userObj.RoleName = userObj.RoleName.trim();
-      userObj.Password = userObj.Password.trim();
+      
+      // Check if Password exists
+      if (userObj.Password) {
+        userObj.Password = userObj.Password.trim(); // Trim Password if it exists
+      } else {
+        delete userObj.Password; // Remove Password property if it does not exist
+      }
       try {
         const token = localStorage.getItem("accessToken");
         const config = {
@@ -117,7 +124,7 @@ function EditUser() {
           },
         };
 
-        const response = await axios.post(
+        const response = await axios.patch(
           `${API}/UpdateUser/Update/${UserName}`,
           userObj,
           config

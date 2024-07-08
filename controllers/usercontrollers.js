@@ -360,7 +360,7 @@ const canUpdateUserData = async (req, res) => {
 
 
 const deleteData = async (req, res) => {
-  const { UserName } = req.body;
+  const  UserName = req.params.UserName
 
   let connection;
   try {

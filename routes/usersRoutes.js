@@ -13,6 +13,6 @@ router.post('/login',AuthData)
 
 router.post('/newUser', Verify,CreateUser);
 router.patch('/Update/:UserName',Verify,canUpdateUserData);
-router.delete('/Delete',Verify,deleteData);
+router.delete('/Delete/:UserName',Verify,deleteData);
 
 module.exports = router;
