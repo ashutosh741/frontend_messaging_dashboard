@@ -1,6 +1,6 @@
 // errorUtils.js
 export function handleError(error) {
-    if (error.response && error.response.status === 409) {
+    if (error.response && error.response.data.status === 409) {
       localStorage.clear();
       window.location.href = "/login";
     } else {

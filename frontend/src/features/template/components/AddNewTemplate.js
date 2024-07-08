@@ -6,13 +6,14 @@ import ErrorText from "../../../components/Typography/ErrorText";
 import { useNavigate } from "react-router-dom";
 import { API, UserData } from "../../../utils/constants";
 import axios from "axios";
+import { handleError } from "../../../utils/errorUtils";
 const AddNewTemplate = () => {
   const user = UserData();
   const INITIAL_TEMPLATE_OBJ = {
     TemplateId: "",
     Content: "",
   };
-  const TOKEN = localStorage.getItem("accessToken");
+  // const TOKEN = localStorage.getItem("accessToken");
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -64,18 +65,13 @@ const AddNewTemplate = () => {
         );
       }
     } catch (error) {
-      console.log(error);
-      if (error.status === 409) {
-        localStorage.clear();
-        window.location.href = "/login";
-      } else {
-        dispatch(
-          showNotification({
-            message: error.response.data.message,
-            status: 0,
-          })
-        );
-      }
+      handleError(error);
+      dispatch(
+        showNotification({
+          message: error.response.data.message,
+          status: 0,
+        })
+      );
     }
 
     // dispatch(addNewTemplate({ newTemplateObj }));

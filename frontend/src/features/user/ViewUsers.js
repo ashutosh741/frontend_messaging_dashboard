@@ -16,7 +16,6 @@ const ViewUsers = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState();
 
-
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("accessToken");
@@ -27,27 +26,26 @@ const ViewUsers = () => {
       };
       const baseURL = `${API}/user/users`;
       try {
-        const response = await axios.get(baseURL,config);
+        const response = await axios.get(baseURL, config);
         if (response.status === 200) {
-          console.log("repsonse is", response)
+          console.log("repsonse is", response);
           setUsers(response.data.data.data);
         } else {
           console.log("access token incorrect");
         }
       } catch (error) {
-        // if (error.response.status === 409) {
-        //   localStorage.clear();
-        //   window.location.href = "/login";
-        // }
-        console.error("error", error);
+        handleError(error);
+        dispatch(
+          showNotification({
+            message: error.response.data.message,
+            status: 0,
+          })
+        );
       }
-      // dispatch(sliceLeadDeleted(false));
     };
 
     fetchData();
   }, []);
-
-
 
   const deleteCurrentUser = (index) => {
     dispatch(
@@ -94,7 +92,6 @@ const ViewUsers = () => {
                 <th>Created Date</th>
                 <th>IsActive</th>
                 <th>Action</th>
-
               </tr>
             </thead>
             <tbody>
@@ -102,7 +99,9 @@ const ViewUsers = () => {
                 return (
                   <tr key={k}>
                     <td>{k + 1}</td>
-                    <td>{l.FirstName}  {l.LastName}</td>
+                    <td>
+                      {l.FirstName} {l.LastName}
+                    </td>
                     <td>{l.UserName}</td>
                     <td>{l.RoleName}</td>
                     {/* <td>{l.Description}</td> */}

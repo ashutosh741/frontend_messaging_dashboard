@@ -10,13 +10,13 @@ import TitleCard from "../../components/Cards/TitleCard";
 import { useNavigate } from "react-router-dom";
 import { API } from "../../utils/constants";
 import axios from "axios";
+import { handleError } from "../../utils/errorUtils";
 
 const Template = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [templates, setTemplates] = useState();
   // const { templates } = useSelector((state) => state.template);
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,26 +28,26 @@ const Template = () => {
       };
       const baseURL = `${API}/FetchAllTemplate/ViewTemplates`;
       try {
-        const response = await axios.get(baseURL,config);
+        const response = await axios.get(baseURL, config);
         if (response.status === 200) {
           setTemplates(response.data.templates);
         } else {
           console.log("access token incorrect");
         }
       } catch (error) {
-        if (error.response.status === 409) {
-          localStorage.clear();
-          window.location.href = "/login";
-        }
-        console.error("error", error);
+        handleError(error);
+        dispatch(
+          showNotification({
+            message: error.response.data.message,
+            status: 0,
+          })
+        );
       }
       // dispatch(sliceLeadDeleted(false));
     };
 
     fetchData();
   }, []);
-
-
 
   const deleteCurrentTemplate = (index) => {
     dispatch(
@@ -104,7 +104,9 @@ const Template = () => {
                     <td>
                       <button
                         className="btn btn-square btn-ghost"
-                        onClick={() => navigate(`/app/editTemplate/${l.TemplateId}`)}
+                        onClick={() =>
+                          navigate(`/app/editTemplate/${l.TemplateId}`)
+                        }
                       >
                         <PencilSquareIcon className="w-5" />
                       </button>

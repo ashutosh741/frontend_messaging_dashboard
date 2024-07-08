@@ -21,7 +21,6 @@ const EditTemplate = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [templateObj, setTemplateObj] = useState();
 
-
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("accessToken");
@@ -32,18 +31,20 @@ const EditTemplate = () => {
       };
       const baseURL = `${API}/FetchAllTemplate/ViewTemplates/${id}`;
       try {
-        const response = await axios.get(baseURL,config);
+        const response = await axios.get(baseURL, config);
         if (response.status === 200) {
           setTemplateObj(response.data.data.template);
         } else {
           console.log("access token incorrect");
         }
       } catch (error) {
-        if (error.response.status === 409) {
-          localStorage.clear();
-          window.location.href = "/login";
-        }
-        console.error("error", error);
+        handleError(error);
+        dispatch(
+          showNotification({
+            message: error.response.data.message,
+            status: 0,
+          })
+        );
       }
       // dispatch(sliceLeadDeleted(false));
     };
@@ -66,7 +67,7 @@ const EditTemplate = () => {
       })
     );
   };
-  const handleUpdateTemplate = async() => {
+  const handleUpdateTemplate = async () => {
     if (templateObj?.TemplateId.trim() === "")
       return setErrorMessage("Id is required!");
     else if (templateObj?.Content.trim() === "")
@@ -104,18 +105,13 @@ const EditTemplate = () => {
         );
       }
     } catch (error) {
-      console.log(error);
-      if (error.status === 409) {
-        localStorage.clear();
-        window.location.href = "/login";
-      } else {
-        dispatch(
-          showNotification({
-            message: error.response.data.message,
-            status: 0,
-          })
-        );
-      }
+      handleError(error);
+      dispatch(
+        showNotification({
+          message: error.response.data.message,
+          status: 0,
+        })
+      );
     }
   };
 

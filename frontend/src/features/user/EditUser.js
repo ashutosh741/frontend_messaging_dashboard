@@ -39,17 +39,19 @@ function EditUser() {
       try {
         const response = await axios.get(baseURL, config);
         if (response.status === 200) {
-          console.log("response is",response)
+          console.log("response is", response);
           setUserObj(response.data.data.data[0]);
         } else {
           console.log("access token incorrect");
         }
       } catch (error) {
-        if (error.response.status === 409) {
-          localStorage.clear();
-          window.location.href = "/login";
-        }
-        console.error("error", error);
+        handleError(error);
+        dispatch(
+          showNotification({
+            message: error.response.data.message,
+            status: 0,
+          })
+        );
       }
       // dispatch(sliceLeadDeleted(false));
     };
@@ -109,7 +111,7 @@ function EditUser() {
       userObj.LastName = userObj.LastName.trim();
       userObj.UserName = userObj.UserName.trim();
       userObj.RoleName = userObj.RoleName.trim();
-      
+
       // Check if Password exists
       if (userObj.Password) {
         userObj.Password = userObj.Password.trim(); // Trim Password if it exists
