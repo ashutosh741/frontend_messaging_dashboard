@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TrashIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -9,6 +9,7 @@ import { openModal } from "../common/modalSlice";
 import TitleCard from "../../components/Cards/TitleCard";
 import { useNavigate } from "react-router-dom";
 import { API } from "../../utils/constants";
+import axios from "axios";
 
 const Template = () => {
   const dispatch = useDispatch();
@@ -88,7 +89,7 @@ const Template = () => {
               </tr>
             </thead>
             <tbody>
-              {templates.map((l, k) => {
+              {templates?.map((l, k) => {
                 return (
                   <tr key={k}>
                     <td>{k + 1}</td>

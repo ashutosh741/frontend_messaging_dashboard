@@ -5,6 +5,7 @@ import { addNewTemplate } from "../templateSlice";
 import ErrorText from "../../../components/Typography/ErrorText";
 import { useNavigate } from "react-router-dom";
 import { API, UserData } from "../../../utils/constants";
+import axios from "axios";
 const AddNewTemplate = () => {
   const user = UserData();
   const INITIAL_TEMPLATE_OBJ = {
@@ -18,8 +19,8 @@ const AddNewTemplate = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [templateObj, setTemplateObj] = useState(INITIAL_TEMPLATE_OBJ);
 
-  const saveNewTemplate = async (e) => {
-    e.preventDefault();
+  const saveNewTemplate = async () => {
+    // e.preventDefault();
 
     if (templateObj.TemplateId.trim() === "")
       return setErrorMessage("Template Id is required!");
@@ -48,7 +49,7 @@ const AddNewTemplate = () => {
           newTemplateObj,
           config
         );
-        if (response.status === 200) {
+        if (response?.status === 200) {
           // localStorage.setItem("user", JSON.stringify(response.data));
           // dispatch(sliceLeadDeleted(true));
           dispatch(
