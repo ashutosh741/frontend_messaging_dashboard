@@ -8,9 +8,11 @@ import { API } from "../../utils/constants";
 import TitleCard from "../../components/Cards/TitleCard";
 import InputText from "./components/Input/InputText";
 import { handleError } from "../../utils/errorUtils";
+import { useNavigate } from "react-router-dom";
 
 function EditUser() {
   const { UserName } = useParams();
+  const navigate = useNavigate();
 
   const INITIAL_USER_OBJ = {
     FirstName: "",
@@ -130,6 +132,7 @@ function EditUser() {
               status: 1,
             })
           );
+          navigate("/app/viewUsers");
         }
       } catch (error) {
         handleError(error);
