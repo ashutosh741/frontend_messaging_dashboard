@@ -1,12 +1,26 @@
 const mysqlpool = require("../db"); // Assuming this is your MySQL connection pool setup
 const mysql = require("mysql2/promise");
 
+
+
+function createResponseObject(isError, message, data = null) {
+    const responseObject = {
+        isError: isError,
+        message: message,
+    };
+
+    if (data != null) {
+        responseObject.data = data;
+    }
+    return responseObject;
+    uirytuijgh;
+}
 const createTemplate = async (req, res) => {
     try {
         if (req.body.RoleName !== "superadmin") {
             throw new Error('Unauthorized: Only SuperAdmin can create templates.');
         }
-        
+
         const { TemplateId, Content, CreatedBy, Status } = req.body;
 
         // Check if templateId already exists
@@ -61,7 +75,7 @@ const updateTemplate = async (req, res) => {
         const { Content, Status } = req.body;
         const loggedInUser = req.user; // Assuming req.user contains logged-in user info
         const TemplateId = req.params.TemplateId; // Extract TemplateId from endpoint URL
-        
+
         // Check if user is authorized to update templates
         if (loggedInUser.RoleName !== "superadmin" && loggedInUser.RoleName !== "admin") {
             throw new Error('Unauthorized: Only SuperAdmin or Admin can update templates.');
@@ -71,7 +85,7 @@ const updateTemplate = async (req, res) => {
         if (loggedInUser.RoleName === "admin" && loggedInUser.UserName !== UpdatedBy) {
             throw new Error('Unauthorized: Admin can only update their own data.');
         }
-console.log(loggedInUser.UserName);
+        console.log(loggedInUser.UserName);
         // Check if templateId exists
         const [existingTemplates] = await mysqlpool.query(
             "SELECT * FROM smstemplate WHERE TemplateId = ?",
@@ -122,7 +136,7 @@ const deleteTemplate = async (req, res) => {
     try {
         const loggedInUser = req.user; // Assuming req.user contains logged-in user info
         const TemplateId = req.params.TemplateId; // Extract TemplateId from endpoint URL
-        
+
         // Check if user is authorized to delete templates (only superadmin allowed)
         if (loggedInUser.RoleName !== "superadmin") {
             throw new Error('Unauthorized: Only SuperAdmin can delete templates.');
@@ -174,27 +188,48 @@ const deleteTemplate = async (req, res) => {
 
 const fetchAllTemplates = async (req, res) => {
     try {
-        // Fetch all templates from smstemplate table
-        const [templates] = await mysqlpool.query(
-            "SELECT * FROM smstemplate"
-        );
+        const TemplateId = req.params.TemplateId;
 
-        // Return the fetched templates
-        return res.status(200).json({
-            success: true,
-            templates: templates,
-            message: 'Fetched all templates successfully'
-        });
+        // Fetch template from smstemplate table by TemplateId if provided
+        if (TemplateId) {
+            const [template] = await mysqlpool.query(
+                "SELECT * FROM smstemplate WHERE TemplateId = ?",
+                [TemplateId]
+            );
+
+            // Check if template exists
+            if (!template.length) {
+                const response = createResponseObject(true, "Template not found");
+                return res.status(404).json(response);
+            }
+
+            // Return the fetched template
+            const response = createResponseObject(false, "Template retrieved", {
+                template: template[0],
+            });
+            return res.status(200).json(response);
+        } else {
+            // Fetch all templates from smstemplate table
+            const [templates] = await mysqlpool.query("SELECT * FROM smstemplate");
+
+            // Return the fetched templates
+            return res.status(200).json({
+                success: true,
+                templates: templates,
+                message: 'Fetched all templates successfully'
+            });
+        }
     } catch (error) {
         console.error('Error fetching templates:', error);
-        return res.status(500).json({
-            success: false,
-            message: error.message || 'Error fetching templates'
+        const response = createResponseObject(true, "Internal Server Error", {
+            error: error.message || "Failed to fetch templates",
         });
+        return res.status(500).json(response);
     }
-}
+};
+
 
 module.exports = {
     createTemplate,
-    updateTemplate,deleteTemplate,fetchAllTemplates
+    updateTemplate, deleteTemplate, fetchAllTemplates
 };

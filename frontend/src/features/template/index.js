@@ -99,7 +99,7 @@ const Template = () => {
                     <td>
                       <button
                         className="btn btn-square btn-ghost"
-                        onClick={() => navigate(`/app/editTemplate/${k}`)}
+                        onClick={() => navigate(`/app/editTemplate/${l.TemplateId}`)}
                       >
                         <PencilSquareIcon className="w-5" />
                       </button>

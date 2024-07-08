@@ -10,5 +10,7 @@ router.post('/newtemplate',Verify,createTemplate);
 router.patch('/Update/:TemplateId',Verify,updateTemplate);
 router.delete('/Delete/:TemplateId',Verify,deleteTemplate);
 router.get('/ViewTemplates',Verify,fetchAllTemplates);
+router.get('/ViewTemplates/:TemplateId',Verify,fetchAllTemplates);
+
 
 module.exports = router;
