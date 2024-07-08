@@ -10,11 +10,13 @@ import InputText from "./components/Input/InputText";
 import { handleError } from "../../utils/errorUtils";
 
 function EditUser() {
+  const { UserName } = useParams();
+
   const INITIAL_USER_OBJ = {
     FirstName: "",
     LastName: "",
-    Email: "",
-    RoleType: "",
+    UserName: "",
+    RoleName: "",
     Password: "",
   };
 
@@ -22,6 +24,35 @@ function EditUser() {
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem("accessToken");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const baseURL = `${API}/user/users/${UserName}`;
+      try {
+        const response = await axios.get(baseURL, config);
+        if (response.status === 200) {
+          setTemplateObj(response.data.data);
+        } else {
+          console.log("access token incorrect");
+        }
+      } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
+        console.error("error", error);
+      }
+      // dispatch(sliceLeadDeleted(false));
+    };
+
+    fetchData();
+  }, []);
 
   const submitForm = async (e) => {
     e.preventDefault();
@@ -43,7 +74,7 @@ function EditUser() {
       );
       return;
     }
-    if (userObj.Email.toString().trim() === "") {
+    if (userObj.UserName.toString().trim() === "") {
       dispatch(
         showNotification({
           message: "Email is required!",
@@ -52,7 +83,7 @@ function EditUser() {
       );
       return;
     }
-    if (!isEmailValid(userObj.Email)) {
+    if (!isEmailValid(userObj.UserName)) {
       return dispatch(
         showNotification({
           message: "Email is not Valid!",
@@ -61,19 +92,10 @@ function EditUser() {
       );
     }
 
-    if (userObj.RoleType === "default") {
+    if (userObj.RoleName === "default") {
       dispatch(
         showNotification({
-          message: "Role Type is required.",
-          status: 0,
-        })
-      );
-      return;
-    }
-    if (userObj.Password === "") {
-      dispatch(
-        showNotification({
-          message: "Password is required.",
+          message: "Role Name is required.",
           status: 0,
         })
       );
@@ -82,40 +104,42 @@ function EditUser() {
       console.log("uesr data is", userObj);
       userObj.FirstName = userObj.FirstName.trim();
       userObj.LastName = userObj.LastName.trim();
-      userObj.Email = userObj.Email.trim();
-      userObj.RoleType = userObj.RoleType.trim();
+      userObj.UserName = userObj.UserName.trim();
+      userObj.RoleName = userObj.RoleName.trim();
       userObj.Password = userObj.Password.trim();
-      //   try {
-      //     const tokenResponse = localStorage.getItem("accessToken");
-      //     const tokenData = JSON.parse(tokenResponse);
-      //     const token = tokenData.token;
-      //     const config = {
-      //       headers: {
-      //         Authorization: `Bearer ${token}`,
-      //       },
-      //     };
+      try {
+        const token = localStorage.getItem("accessToken");
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
 
-      //     const response = await axios.post(`${API}/addUser`, userObj, config);
+        const response = await axios.post(
+          `${API}/UpdateUser/Update/${UserName}`,
+          userObj,
+          config
+        );
 
-      //     if (response.status === 201) {
-      //       setUserObj(INITIAL_USER_OBJ);
+        if (response.status === 200) {
+          setUserObj(INITIAL_USER_OBJ);
 
-      //       dispatch(
-      //         showNotification({
-      //           message: "User Created Successfully!",
-      //           status: 1,
-      //         })
-      //       );
-      //     }
-      //   } catch (error) {
-      //     handleError(error);
-      //     dispatch(
-      //       showNotification({
-      //         message: `${error.response.data.message}`,
-      //         status: 0,
-      //       })
-      //     );
-      //   }
+          dispatch(
+            showNotification({
+              message: response.data.message,
+              status: 1,
+            })
+          );
+        }
+      } catch (error) {
+        handleError(error);
+        dispatch(
+          showNotification({
+            message: error.response.data.message,
+            status: 0,
+          })
+        );
+      }
     }
   };
 
@@ -158,28 +182,28 @@ function EditUser() {
               updateFormValue={updateFormValue}
             />
             <InputText
-              defaultValue={userObj.Email}
+              defaultValue={userObj.UserName}
               type="email"
-              updateType="Email"
+              updateType="UserName"
               containerStyle="mt-4"
               labelTitle="Email"
               updateFormValue={updateFormValue}
             />
 
             <div>
-              <label className="label mt-4">Role Type</label>
+              <label className="label mt-4">Role Name</label>
               <select
-                name="RoleType"
-                updateType="RoleType"
+                name="RoleName"
+                updateType="RoleName"
                 className="input input-bordered w-full pe-2"
                 onChange={handleInputChange}
-                value={userObj.RoleType}
+                value={userObj.RoleName}
               >
                 <option value="default" selected disabled>
                   Select Role
                 </option>
-                <option value="ADMIN">ADMIN</option>
-                <option value="USER">USER</option>
+                <option value="admin">ADMIN</option>
+                <option value="user">USER</option>
               </select>
             </div>
             <div className="relative">

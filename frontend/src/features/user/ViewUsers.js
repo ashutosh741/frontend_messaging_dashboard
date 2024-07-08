@@ -111,13 +111,13 @@ const ViewUsers = () => {
                     <td>
                       <button
                         className="btn btn-square btn-ghost"
-                        onClick={() => navigate(`/app/editUser/${l.UserId}`)}
+                        onClick={() => navigate(`/app/editUser/${l.UserName}`)}
                       >
                         <PencilSquareIcon className="w-5" />
                       </button>
                       <button
                         className="btn btn-square btn-ghost"
-                        onClick={() => deleteCurrentUser(l.UserId)}
+                        onClick={() => deleteCurrentUser(l.UserName)}
                       >
                         <TrashIcon className="w-5" />
                       </button>

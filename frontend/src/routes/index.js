@@ -61,7 +61,7 @@ if (user?.IsActive && user?.RoleName === "superadmin") {
       component: ViewUsers,
     },
     {
-      path: "/editUser/:id",
+      path: "/editUser/:UserName",
       component: EditUser,
     },
   );
