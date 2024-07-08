@@ -141,9 +141,11 @@ const ProfileSettings = () => {
               name="UserName"
               className="input input-bordered w-full"
               value={profileData?.UserName}
+              disabled={user.RoleName !== "superadmin"} // Disable input if user.RoleName is "user"
               onChange={handleInputChange}
             />
           </div>
+
           <div>
             <label className="label">FirstName</label>
             <input

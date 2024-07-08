@@ -17,6 +17,7 @@ const Template = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [templates, setTemplates] = useState();
+  const user = JSON.parse(localStorage.getItem("user"))
   // const { templates } = useSelector((state) => state.template);
 
   useEffect(() => {
@@ -91,7 +92,9 @@ const Template = () => {
                 <th>Template ID</th>
                 <th>Content</th>
                 <th>Status</th>
-                <th>Action</th>
+                {user.RoleName !== "user" &&
+                  <th>Action</th>
+                }
               </tr>
             </thead>
             <tbody>
@@ -102,22 +105,26 @@ const Template = () => {
                     <td>{l.TemplateId}</td>
                     <td>{l.Content}</td>
                     <td>{l.Status}</td>
-                    <td>
-                      <button
-                        className="btn btn-square btn-ghost"
-                        onClick={() =>
-                          navigate(`/app/editTemplate/${l.TemplateId}`)
-                        }
-                      >
-                        <PencilSquareIcon className="w-5" />
-                      </button>
-                      <button
-                        className="btn btn-square btn-ghost"
-                        onClick={() => deleteCurrentTemplate(l.TemplateId)}
-                      >
-                        <TrashIcon className="w-5" />
-                      </button>
-                    </td>
+                    {
+                      user.RoleName !== "user" &&
+
+                      <td>
+                        <button
+                          className="btn btn-square btn-ghost"
+                          onClick={() =>
+                            navigate(`/app/editTemplate/${l.TemplateId}`)
+                          }
+                        >
+                          <PencilSquareIcon className="w-5" />
+                        </button>
+                        <button
+                          className="btn btn-square btn-ghost"
+                          onClick={() => deleteCurrentTemplate(l.TemplateId)}
+                        >
+                          <TrashIcon className="w-5" />
+                        </button>
+                      </td>
+                    }
                   </tr>
                 );
               })}

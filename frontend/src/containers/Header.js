@@ -10,6 +10,8 @@ import {
 import { useSelector } from "react-redux";
 
 const Header = () => {
+  const user = JSON.parse(localStorage.getItem("user"))
+  console.log("local users is", user)
   const location = useLocation();
   const { pageTitle } = useSelector((state) => state.header);
   console.log("params is", location.pathname);
@@ -51,13 +53,20 @@ const Header = () => {
         </div>
 
         <div className="flex gap-5">
-          {location.pathname.includes("createtemplate") ? null : (
-            <DashboardBtn
-              text="Create SMS Template"
-              className="bg-[#D2292E] h-[2.5rem] px-4 rounded-lg hidden lg:block text-white"
-              link="/app/createtemplate"
-            />
-          )}
+          {
+            user.RoleName === "user" ? null : (
+
+              location.pathname.includes("createtemplate") ? null : (
+                <DashboardBtn
+                  text="Create SMS Template"
+                  className="bg-[#D2292E] h-[2.5rem] px-4 rounded-lg hidden lg:block text-white"
+                  link="/app/createtemplate"
+                />
+              )
+
+            )
+          }
+
 
           <div className="order-last flex">
             <label className="swap ">
@@ -103,9 +112,12 @@ const Header = () => {
                     Profile Settings
                     <span className="badge">New</span>
                   </Link>
-                  <Link className="lg:hidden block" to={"/app/createtemplate"}>
-                    Create Template
-                  </Link>
+                  {
+                    user.RoleName === "user" ? null : (
+                      <Link className="lg:hidden block" to={"/app/createtemplate"}>
+                        Create Template
+                      </Link>
+                    )}
                 </li>
 
                 <div className="divider mt-0 mb-0"></div>

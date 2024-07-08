@@ -76,13 +76,6 @@ else if (user?.IsActive && user?.RoleName === "user") {
 
       name: "Dashboard",
     },
-    {
-      path: "/app/reportSummary",
-      icon: <ReportSummaryIcon className={iconClasses} />,
-      // icon: <BuildingOffice2Icon className={iconClasses} />,
-
-      name: "Report Summary",
-    },
 
   );
 }
