@@ -3,6 +3,8 @@ import { CONFIRMATION_MODAL_CLOSE_TYPES } from "../../../utils/globalConstantUti
 import { showNotification } from "../headerSlice";
 import { deleteTemplate } from "../../template/templateSlice";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { API } from "../../../utils/constants";
 
 function ConfirmationModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
@@ -12,11 +14,48 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
   const proceedWithYes = async () => {
     if (type === CONFIRMATION_MODAL_CLOSE_TYPES.TEMPLATE_DELETE) {
       // positive response, call api or dispatch redux function
-      dispatch(deleteTemplate({ index }));
-      dispatch(showNotification({ message: "Template Deleted!", status: 1 }));
-
-      if (navigateTo) {
-        navigate(navigateTo);
+      try {
+        const token = localStorage.getItem("accessToken");
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = await axios.patch(
+          `${API}/DeleteTemplate/Delete/${index}`,
+          config
+        );
+        if (response?.status === 200) {
+          // localStorage.setItem("user", JSON.stringify(response.data));
+          // dispatch(sliceLeadDeleted(true));
+          dispatch(
+            showNotification({ message: response.data.message, status: 1 })
+          );
+          if (navigateTo) {
+            navigate(navigateTo);
+          }
+          // navigate("/app/dashboard");
+        } else {
+          dispatch(
+            showNotification({
+              message: response.data.message,
+              status: 0,
+            })
+          );
+        }
+      } catch (error) {
+        console.log(error);
+        if (error.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        } else {
+          dispatch(
+            showNotification({
+              message: error.response.data.message,
+              status: 0,
+            })
+          );
+        }
       }
     }
     closeModal();

@@ -66,22 +66,56 @@ const EditTemplate = () => {
       })
     );
   };
-  const handleUpdateTemplate = () => {
-    if (templateObj?.templateId.trim() === "")
+  const handleUpdateTemplate = async() => {
+    if (templateObj?.TemplateId.trim() === "")
       return setErrorMessage("Id is required!");
     else if (templateObj?.content.trim() === "")
       return setErrorMessage("Content is required!");
-    else {
+    try {
       let updatedTemplateObj = {
-        templateId: templateObj.templateId.trim(),
-        content: templateObj.content.trim(),
-        status: "PENDING",
+        TemplateId: templateObj.TemplateId.trim(),
+        Content: templateObj.content.trim(),
+        status: 1,
       };
-      dispatch(
-        updateTemplate({ index: id, updatedTemplateObj: updatedTemplateObj })
+      const token = localStorage.getItem("accessToken");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await axios.patch(
+        `${API}/UpdateTemplate/Update/${id}`,
+        updatedTemplateObj,
+        config
       );
-      dispatch(showNotification({ message: "Template Updated!", status: 1 }));
-      navigate("/app/dashboard");
+      if (response?.status === 200) {
+        // localStorage.setItem("user", JSON.stringify(response.data));
+        // dispatch(sliceLeadDeleted(true));
+        dispatch(
+          showNotification({ message: response.data.message, status: 1 })
+        );
+        navigate("/app/dashboard");
+      } else {
+        dispatch(
+          showNotification({
+            message: response.data.message,
+            status: 0,
+          })
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      if (error.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({
+            message: error.response.data.message,
+            status: 0,
+          })
+        );
+      }
     }
   };
 
@@ -104,7 +138,7 @@ const EditTemplate = () => {
               placeholder="Enter Template Id"
               value={templateObj?.TemplateId}
               onChange={(e) =>
-                updateFormValue({ type: "templateId", value: e.target.value })
+                updateFormValue({ type: "TemplateId", value: e.target.value })
               }
             />
           </div>
